@@ -11,7 +11,7 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
 
-from .auditor import Finding
+from .auditor import EVIDENCE_AUTHORITY, Finding
 from .llm import call_tool
 
 # Three deliberately different lenses so the votes aren't just the same model
@@ -88,7 +88,12 @@ def _one_vote(framing: tuple[str, str], transcript: str, note: str, finding: Fin
     name, lens = framing
     system = (
         f"{lens}\n\nYou are one of several independent judges reviewing a single flag raised by "
-        "an automated note auditor. Judge only the flag in front of you. Be decisive."
+        "an automated note auditor. Judge only the flag in front of you. Be decisive.\n\n"
+        + EVIDENCE_AUTHORITY
+        + "Apply this same authority scale when you weigh the auditor's evidence: a discrepancy "
+        "that a source with authority for that KIND of claim actually establishes is a real flag; "
+        "one that rests only on a source with little authority for it (e.g. a patient's "
+        "self-reassurance used to rule a concern out) should not be dismissed as trivial."
     )
     user = (
         f"SOURCE TRANSCRIPT:\n{transcript}\n\n"

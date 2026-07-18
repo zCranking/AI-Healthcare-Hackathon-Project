@@ -83,6 +83,29 @@ _TOOL = {
     },
 }
 
+# Shared by the auditor and the judge ensemble so the two stages reason on the
+# same evidential scale. Authority is not fixed - it shifts with the claim type.
+EVIDENCE_AUTHORITY = (
+    "EVIDENCE AUTHORITY - weight each source by WHO said it and WHAT KIND of claim it is. Authority "
+    "is not fixed; it shifts with the claim:\n"
+    "- Objective, measured facts (vitals, labs, BMI, coded diagnoses, prescribed medications): the "
+    "FHIR chart carries the most weight, then a clinician-stated measurement, then the patient's "
+    "recollection.\n"
+    "- Clinical judgment and interpretation (assessment, differential, severity, what is or is not "
+    "concerning, plan rationale): the clinician (DR:) is authoritative. A patient's self-diagnosis "
+    "or self-reassurance ('it's probably just stress', 'I wouldn't worry about it') carries little "
+    "evidential weight and must NEVER be treated as ruling a concern in or out. A note that adopts "
+    "the patient's dismissal as though it were clinical assessment is drifting - flag it.\n"
+    "- The patient's own body, experience, and behavior (symptoms and how they felt, timing, "
+    "medication adherence such as 'I stopped taking it', substance use, social circumstances): the "
+    "patient (PT:) is the primary authority. A clinician's paraphrase is secondary and may distort "
+    "it, and the chart may simply be out of date. Never discount a patient's statement about their "
+    "own adherence or symptoms because a clinician or the chart implies otherwise - flag the "
+    "conflict instead.\n"
+    "When the clinician and the patient conflict, do not silently pick a side: say who said what "
+    "and which source is authoritative for that kind of claim.\n\n"
+)
+
 _SYSTEM = (
     "You are a skeptical clinical fact-checker auditing an AI-generated SOAP note. Decompose the "
     "note into individual clinical claims (symptoms, medications, history, findings, plan items) "
@@ -101,7 +124,8 @@ _SYSTEM = (
     "'fhir'; if the note's value DIFFERS from the correct computed value it is 'contradicted' with "
     "evidence_source 'fhir'. Never mark a derivable value 'unsupported'/'neither' merely because "
     "it was not spoken aloud, and never mark a correctly matching value 'contradicted'.\n\n"
-    "Status definitions:\n"
+    + EVIDENCE_AUTHORITY
+    + "Status definitions:\n"
     "- 'supported': the claim is established by the transcript, the FHIR data, or both.\n"
     "- 'unsupported': the note asserts something that appears in NEITHER source.\n"
     "- 'contradicted': the note states something that a source directly refutes (e.g. lists a "
@@ -109,9 +133,14 @@ _SYSTEM = (
     "into a clean denial; asserts a specific number/detail that neither source establishes).\n"
     "- 'omitted': a source contains a clinically relevant fact the note leaves out. State the "
     "omitted fact as the 'claim'.\n\n"
-    "For every finding set 'evidence_source' to name which source (or lack thereof) justifies it: "
-    "'transcript', 'fhir', 'both', or 'neither'. A flag (unsupported/contradicted) should almost "
-    "always be 'neither' - if you cannot, reconsider whether it is really a flag.\n\n"
+    "For every finding set 'evidence_source' to name the source that justifies the finding. It is "
+    "determined by the status:\n"
+    "- 'supported' -> the source that ESTABLISHES the claim: 'transcript', 'fhir', or 'both'.\n"
+    "- 'unsupported' -> always 'neither' (by definition the claim appears in no source).\n"
+    "- 'contradicted' -> the source that REFUTES the claim ('transcript', 'fhir', or 'both'). Do "
+    "NOT use 'neither' here: a contradiction requires a source that disagrees. If no source "
+    "disagrees and the claim is merely absent, the status is 'unsupported', not 'contradicted'.\n"
+    "- 'omitted' -> the source that CONTAINS the omitted fact ('transcript', 'fhir', or 'both').\n\n"
     "Set severity by clinical risk: wrong medication or missed red-flag symptom is high; a minor "
     "phrasing gap is low. Report supported claims too, briefly - they show coverage - but focus "
     "your effort on the unsupported, contradicted, and omitted ones."
