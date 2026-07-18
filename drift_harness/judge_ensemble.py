@@ -62,8 +62,16 @@ _TOOL = {
                 "type": "string",
                 "description": "One or two sentences justifying the vote from your assigned perspective.",
             },
+            "harm_if_trusted": {
+                "type": "string",
+                "description": (
+                    "If the flag stands, one concrete sentence on the clinical harm that could "
+                    "follow if the next clinician trusts this note as written (e.g. a wrong "
+                    "treatment, a missed diagnosis). If the flag is a false alarm, return ''."
+                ),
+            },
         },
-        "required": ["verdict", "severity", "rationale"],
+        "required": ["verdict", "severity", "rationale", "harm_if_trusted"],
     },
 }
 
@@ -74,6 +82,7 @@ class JudgeVote:
     verdict: str    # confirm | reject
     severity: str   # low | medium | high
     rationale: str
+    harm_if_trusted: str = ""   # concrete clinical harm if the note is trusted as written
 
 
 @dataclass
@@ -85,6 +94,7 @@ class JudgedFinding:
     disagreement: bool = False
     confirm_votes: int = 0
     reject_votes: int = 0
+    harm_if_trusted: str = ""           # the sharpest harm statement among confirming judges
 
 
 def _one_vote(
@@ -124,7 +134,13 @@ def _one_vote(
         "the auditor's evidence text. Cast your vote."
     )
     data = call_tool(system, user, _TOOL, max_tokens=1200)
-    return JudgeVote(judge=name, verdict=data["verdict"], severity=data["severity"], rationale=data["rationale"])
+    return JudgeVote(
+        judge=name,
+        verdict=data["verdict"],
+        severity=data["severity"],
+        rationale=data["rationale"],
+        harm_if_trusted=data.get("harm_if_trusted", ""),
+    )
 
 
 def _majority(values: list[str]) -> str:
@@ -155,6 +171,13 @@ def judge_finding(
     # Disagreement = the judges did not unanimously agree on the verdict.
     disagreement = len(set(verdicts)) > 1
 
+    # Sharpest harm statement: prefer a confirming judge, then the longest (most
+    # specific) non-empty one. Empty when no judge saw a real harm.
+    harms = [v.harm_if_trusted for v in votes if v.verdict == "confirm" and v.harm_if_trusted.strip()]
+    if not harms:
+        harms = [v.harm_if_trusted for v in votes if v.harm_if_trusted.strip()]
+    harm = max(harms, key=len) if harms else ""
+
     return JudgedFinding(
         finding=asdict(finding),
         votes=votes,
@@ -163,6 +186,7 @@ def judge_finding(
         disagreement=disagreement,
         confirm_votes=confirm,
         reject_votes=reject,
+        harm_if_trusted=harm,
     )
 
 

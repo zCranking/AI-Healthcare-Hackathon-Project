@@ -15,6 +15,7 @@ from typing import Any
 from .auditor import Finding, audit, flagged, to_dicts as findings_to_dicts
 from .judge_ensemble import judge_findings, to_dicts as judged_to_dicts
 from .note_generator import generate_note
+from .scorer import score_case
 
 _RESULTS_DIR = Path(__file__).resolve().parent.parent / "results"
 
@@ -30,6 +31,7 @@ class CaseResult:
     judged: list[dict] = field(default_factory=list)          # ensemble output for flagged
     ground_truth_traps: list[dict] = field(default_factory=list)  # synthetic only
     summary: dict[str, Any] = field(default_factory=dict)
+    evaluation: dict[str, Any] = field(default_factory=dict)  # detection score vs traps (synthetic only)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -42,6 +44,7 @@ class CaseResult:
             "judged": self.judged,
             "ground_truth_traps": self.ground_truth_traps,
             "summary": self.summary,
+            "evaluation": self.evaluation,
         }
 
 
@@ -92,16 +95,23 @@ def run_case(
         transcript, note, problems, max_findings=max_findings, fhir_context=fhir_context
     )
 
+    findings_dicts = findings_to_dicts(all_findings)
+    judged_dicts = judged_to_dicts(judged)
+
+    # Self-scoring: only synthetic cases carry ground-truth traps to grade against.
+    evaluation = score_case(ground_truth_traps or [], findings_dicts, judged_dicts, note=note)
+
     return CaseResult(
         source=source,
         label=label,
         transcript=transcript,
         note=note,
         note_provided=note_provided,
-        findings=findings_to_dicts(all_findings),
-        judged=judged_to_dicts(judged),
+        findings=findings_dicts,
+        judged=judged_dicts,
         ground_truth_traps=ground_truth_traps or [],
         summary=_summarize(all_findings, judged),
+        evaluation=evaluation,
     )
 
 
@@ -164,6 +174,23 @@ def build_report(results: list[CaseResult], save: bool = True) -> dict[str, Any]
         "high_severity_confirmed": sum(r.summary.get("high_severity_confirmed", 0) for r in results),
         "judge_disagreements": sum(r.summary.get("judge_disagreements", 0) for r in results),
     }
+
+    # Detection score aggregated across the scored (synthetic) cases only.
+    scored = [r.evaluation for r in results if r.evaluation]
+    if scored:
+        traps_total = sum(e.get("traps_total", 0) for e in scored)
+        traps_drifted = sum(e.get("traps_drifted", 0) for e in scored)
+        drift_caught = sum(e.get("drift_caught", 0) for e in scored)
+        drift_confirmed = sum(e.get("drift_confirmed", 0) for e in scored)
+        totals["evaluation"] = {
+            "scored_cases": len(scored),
+            "traps_total": traps_total,
+            "traps_drifted": traps_drifted,
+            "drift_caught": drift_caught,
+            "drift_confirmed": drift_confirmed,
+            "recall": round(drift_caught / traps_drifted, 3) if traps_drifted else None,
+            "confirmed_recall": round(drift_confirmed / traps_drifted, 3) if traps_drifted else None,
+        }
     report = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "model": __import__("drift_harness.llm", fromlist=["MODEL"]).MODEL,
