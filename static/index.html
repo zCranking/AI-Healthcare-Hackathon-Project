@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Clinical Note Drift Harness</title>
+<style>
+  :root {
+    --bg: #0e1116; --panel: #161b22; --panel2: #1c2230; --border: #2a3240;
+    --text: #d7dee8; --muted: #8b97a7; --accent: #4c9aff;
+    --high: #ff5c5c; --medium: #ffb547; --low: #6b7684;
+    --supported: #3fb96b; --unsupported: #ffb547; --contradicted: #ff5c5c; --omitted: #b78bff;
+    --confirm: #3fb96b; --reject: #6b7684; --split: #ff5c5c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.5 -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+  header { padding: 14px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  header h1 { font-size: 16px; margin: 0; font-weight: 650; }
+  header h1 span { color: var(--muted); font-weight: 400; }
+  .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-left: auto; }
+  select, button, label.toggle { background: var(--panel2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 7px; padding: 7px 11px; font-size: 13px; }
+  button { cursor: pointer; }
+  button.run { background: var(--accent); border-color: var(--accent); color: #06121f; font-weight: 650; }
+  button:disabled { opacity: .5; cursor: default; }
+  label.toggle { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+
+  .summary { padding: 10px 20px; display: flex; gap: 20px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border); background: var(--panel); font-size: 13px; }
+  .summary .stat { display: flex; flex-direction: column; }
+  .summary .stat b { font-size: 18px; }
+  .summary .stat span { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+
+  main { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 1px;
+    background: var(--border); height: calc(100vh - 112px); }
+  .col { background: var(--panel); overflow: auto; padding: 14px 16px; }
+  .col h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+    margin: 0 0 10px; position: sticky; top: -14px; background: var(--panel); padding: 4px 0; }
+  pre.doc { white-space: pre-wrap; word-wrap: break-word; font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12.5px; line-height: 1.6; margin: 0; }
+  .note-body { white-space: pre-wrap; }
+
+  .traps { margin-top: 16px; border-top: 1px dashed var(--border); padding-top: 12px; }
+  .traps h3 { font-size: 11px; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .trap { background: var(--panel2); border-left: 3px solid var(--accent); border-radius: 5px;
+    padding: 7px 9px; margin-bottom: 7px; font-size: 12px; }
+  .trap .t { color: var(--accent); font-weight: 650; }
+
+  .finding { background: var(--panel2); border: 1px solid var(--border); border-radius: 9px;
+    padding: 11px 12px; margin-bottom: 11px; border-left-width: 4px; }
+  .finding .claim { font-weight: 600; margin-bottom: 6px; }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .badge { font-size: 10.5px; padding: 2px 7px; border-radius: 20px; font-weight: 650;
+    text-transform: uppercase; letter-spacing: .03em; }
+  .b-status { color: #06121f; }
+  .b-sev { border: 1px solid; }
+  .evidence { font-size: 12px; color: var(--muted); margin-bottom: 9px; border-left: 2px solid var(--border);
+    padding-left: 8px; }
+  .verdict-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+  .verdict { font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+  .v-confirm { background: rgba(63,185,107,.16); color: var(--confirm); }
+  .v-reject { background: rgba(107,118,132,.2); color: var(--muted); }
+  .v-split { background: rgba(255,92,92,.16); color: var(--split); }
+  .disagree { color: var(--split); font-weight: 700; font-size: 11px; }
+  .votes { display: flex; flex-direction: column; gap: 5px; }
+  .vote { display: flex; gap: 8px; font-size: 11.5px; align-items: baseline; }
+  .vote .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; margin-top: 4px; }
+  .vote .jn { color: var(--muted); min-width: 128px; font-weight: 600; }
+  .vote .jr { color: var(--text); }
+
+  .empty { color: var(--muted); font-style: italic; padding: 20px 0; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--muted);
+    border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #custom-inputs { display: none; gap: 8px; padding: 10px 20px; border-bottom: 1px solid var(--border);
+    background: var(--panel); }
+  #custom-inputs textarea { width: 100%; background: var(--panel2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 7px; padding: 8px; font-family: ui-monospace, monospace;
+    font-size: 12px; resize: vertical; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Clinical Note Drift Harness <span>&mdash; catches when an AI note silently drifts from the transcript</span></h1>
+  <div class="controls">
+    <select id="mode">
+      <option value="abridge">Abridge encounter</option>
+      <option value="synthetic">Synthetic trap case</option>
+      <option value="custom">Paste your own</option>
+    </select>
+    <select id="abridge-select"></select>
+    <label class="toggle" id="regen-wrap"><input type="checkbox" id="regenerate" /> regenerate note</label>
+    <button class="run" id="run">Run harness</button>
+  </div>
+</header>
+
+<div id="custom-inputs">
+  <textarea id="c-transcript" rows="4" placeholder="Paste a DR:/PT: transcript here..."></textarea>
+  <textarea id="c-note" rows="3" placeholder="(optional) paste a note to audit; leave blank to generate one"></textarea>
+</div>
+
+<div class="summary" id="summary"><span class="empty">Run a case to see results.</span></div>
+
+<main>
+  <div class="col" id="col-transcript"><h2>Transcript</h2><div id="transcript"></div></div>
+  <div class="col" id="col-note"><h2>Generated note (system under test)</h2><div id="note"></div></div>
+  <div class="col" id="col-findings"><h2>Flagged discrepancies &amp; judge votes</h2><div id="findings"></div></div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const STATUS_COLORS = { supported:'--supported', unsupported:'--unsupported', contradicted:'--contradicted', omitted:'--omitted' };
+const cssv = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+async function loadAbridge() {
+  const r = await fetch('/api/abridge');
+  const cases = await r.json();
+  $('abridge-select').innerHTML = cases
+    .map(c => `<option value="${c.index}">[${c.index}] ${c.visit_title}</option>`).join('');
+}
+
+function syncControls() {
+  const mode = $('mode').value;
+  $('abridge-select').style.display = mode === 'abridge' ? '' : 'none';
+  $('regen-wrap').style.display = mode === 'abridge' ? '' : 'none';
+  $('custom-inputs').style.display = mode === 'custom' ? 'flex' : 'none';
+}
+
+function renderTranscript(res) {
+  const el = $('transcript');
+  const pre = document.createElement('pre');
+  pre.className = 'doc';
+  pre.textContent = res.transcript;
+  el.innerHTML = '';
+  el.appendChild(pre);
+  if (res.ground_truth_traps && res.ground_truth_traps.length) {
+    const box = document.createElement('div');
+    box.className = 'traps';
+    box.innerHTML = '<h3>Planted ground-truth traps</h3>' + res.ground_truth_traps.map(t =>
+      `<div class="trap"><span class="t">${t.trap_type}</span> &mdash; ${escapeHtml(t.description)}
+       <div style="color:var(--muted);margin-top:3px">expected: ${escapeHtml(t.expected_note_behavior)}</div></div>`
+    ).join('');
+    el.appendChild(box);
+  }
+}
+
+function renderNote(res) {
+  const el = $('note');
+  el.innerHTML = '';
+  const div = document.createElement('div');
+  div.className = 'note-body doc';
+  div.textContent = res.note;
+  el.appendChild(div);
+  if (res.note_provided) {
+    const tag = document.createElement('div');
+    tag.style.cssText = 'color:var(--muted);font-size:11px;margin-bottom:8px';
+    tag.textContent = 'Note supplied with the case (audited as-is).';
+    el.prepend(tag);
+  }
+}
+
+function renderFindings(res) {
+  const el = $('findings');
+  const judged = res.judged || [];
+  if (!judged.length) {
+    el.innerHTML = '<div class="empty">No discrepancies escalated to the judges for this case.</div>';
+    return;
+  }
+  el.innerHTML = judged.map(j => {
+    const f = j.finding;
+    const statusVar = STATUS_COLORS[f.status] || '--muted';
+    const sevVar = '--' + (j.severity_verdict === 'split' ? 'high' : j.severity_verdict || f.severity);
+    const verdictClass = j.consensus_verdict === 'confirm' ? 'v-confirm'
+      : j.consensus_verdict === 'reject' ? 'v-reject' : 'v-split';
+    const votes = (j.votes || []).map(v => {
+      const c = v.verdict === 'confirm' ? cssv('--confirm') : cssv('--reject');
+      return `<div class="vote"><span class="dot" style="background:${c}"></span>
+        <span class="jn">${v.judge}</span>
+        <span class="jr"><b style="color:${c}">${v.verdict}</b> / ${v.severity} &mdash; ${escapeHtml(v.rationale)}</span></div>`;
+    }).join('');
+    return `<div class="finding" style="border-left-color:${cssv(statusVar)}">
+      <div class="claim">${escapeHtml(f.claim)}</div>
+      <div class="badges">
+        <span class="badge b-status" style="background:${cssv(statusVar)}">${f.status}</span>
+        <span class="badge b-sev" style="color:${cssv(sevVar)};border-color:${cssv(sevVar)}">severity: ${j.severity_verdict}</span>
+        ${j.disagreement ? '<span class="badge" style="background:var(--split);color:#fff">judges split</span>' : ''}
+      </div>
+      <div class="evidence">${escapeHtml(f.transcript_evidence)}</div>
+      <div class="verdict-row">
+        <span class="verdict ${verdictClass}">${j.consensus_verdict.toUpperCase()}</span>
+        <span style="color:var(--muted)">${j.confirm_votes}&nbsp;confirm / ${j.reject_votes}&nbsp;reject</span>
+      </div>
+      <div class="votes">${votes}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSummary(res) {
+  const s = res.summary || {};
+  const stat = (v, label) => `<div class="stat"><b>${v ?? 0}</b><span>${label}</span></div>`;
+  $('summary').innerHTML =
+    stat(s.claims_audited, 'claims audited') +
+    stat(s.flagged, 'flagged') +
+    stat(s.escalated_to_judges, 'sent to judges') +
+    stat(s.confirmed_discrepancies, 'confirmed') +
+    stat(s.high_severity_confirmed, 'high-severity') +
+    stat(s.judge_disagreements, 'judge splits');
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"]/g, c =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+}
+
+async function run() {
+  const mode = $('mode').value;
+  const body = { mode, max_findings: 6 };
+  if (mode === 'abridge') {
+    body.index = parseInt($('abridge-select').value, 10);
+    body.regenerate_note = $('regenerate').checked;
+  } else if (mode === 'custom') {
+    body.transcript = $('c-transcript').value;
+    body.note = $('c-note').value.trim() || null;
+  }
+  const btn = $('run');
+  btn.disabled = true;
+  const label = btn.textContent;
+  btn.innerHTML = '<span class="spinner"></span> running (~30-60s)';
+  $('findings').innerHTML = '<div class="empty">Generating note, auditing claims, polling 3 judges&hellip;</div>';
+  try {
+    const r = await fetch('/api/run', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
+    const res = await r.json();
+    renderSummary(res); renderTranscript(res); renderNote(res); renderFindings(res);
+  } catch (e) {
+    $('findings').innerHTML = `<div class="empty" style="color:var(--high)">Error: ${escapeHtml(e.message)}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = label;
+  }
+}
+
+$('mode').addEventListener('change', syncControls);
+$('run').addEventListener('click', run);
+loadAbridge(); syncControls();
+</script>
+</body>
+</html>
