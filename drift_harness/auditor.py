@@ -95,6 +95,14 @@ _SYSTEM = (
     "from the transcript - check the FHIR data before flagging anything. Only flag genuinely "
     "absent or contradicted claims, not claims that are grounded in the chart but were not spoken "
     "aloud.\n\n"
+    "The FHIR chart records the patient's ACTUAL data and is authoritative. No other source "
+    "overrides it on a substantive clinical fact, and neither the note nor the after-visit "
+    "summary outranks the chart or each other. When the note misstates something the chart "
+    "records correctly - wrong medication, wrong condition, wrong demographic, or a value that "
+    "disagrees with a recorded value - that is a 'contradicted' finding: the note is wrong, not "
+    "the chart. More generally, surface ANY genuine contradiction between sources (note vs. "
+    "transcript, note vs. chart, or the after-visit summary vs. any of them) - substantive "
+    "differences, not mere paraphrasing.\n\n"
     "When the note states a value that is DERIVABLE from a FHIR field (e.g. age from birth_date "
     "plus encounter date, or a BMI category from a recorded BMI), compute the correct value and "
     "compare: if the note matches the computed value it is 'supported' with evidence_source "
@@ -151,9 +159,25 @@ def _format_fhir(fhir_context: dict[str, Any] | None) -> str:
     enc = fhir_context.get("encounter_resource_labels") or {}
     for rtype, vals in enc.items():
         if vals:
-            shown = vals[:25]
-            more = f" (+{len(vals) - len(shown)} more)" if len(vals) > len(shown) else ""
-            lines.append(f"This encounter's {rtype} resources{more}:\n  - " + "\n  - ".join(shown))
+            # Show the full deduped list - a claim contradicted by a resource that
+            # was truncated away would otherwise look merely 'unsupported'.
+            lines.append(f"This encounter's {rtype} resources:\n  - " + "\n  - ".join(vals))
+    avs = fhir_context.get("after_visit_summary")
+    if avs:
+        prov = fhir_context.get("after_visit_summary_provenance") or {}
+        reviewed = prov.get("review_status", "unknown")
+        source = prov.get("source", "unknown")
+        lines.append(
+            "Patient-facing after-visit summary (AVS). It is NOT authoritative and does not "
+            f"confirm a claim on its own - it was extractively derived from '{source}' "
+            f"(review_status: {reviewed}), so it normally just echoes the note. Echoing is "
+            "expected and is NOT a finding. But cross-check it like every other source: if the "
+            "AVS genuinely CONTRADICTS the note, the transcript, or the FHIR chart - a different "
+            "medication, dose, diagnosis, plan item, or clinical fact (not merely different "
+            "wording or a paraphrase) - flag that contradiction. It can also reveal a plan/next-"
+            "step item the note OMITS:\n"
+            + avs
+        )
     return "\n".join(lines) if lines else "FHIR context provided but contained no usable labels."
 
 
@@ -165,8 +189,9 @@ def audit(
     """Audit a note against its transcript AND structured FHIR chart data.
 
     fhir_context is a dict with (any of) 'condition_labels', 'medication_labels',
-    'patient_demographics', 'encounter_resource_labels', 'resource_counts'. Pass
-    None for synthetic/custom cases that have no chart data.
+    'patient_demographics', 'encounter_resource_labels', 'resource_counts',
+    'after_visit_summary' (+ its provenance). Pass None for synthetic/custom cases
+    that have no chart data.
     """
     user = (
         f"VISIT TRANSCRIPT:\n{transcript}\n\n"

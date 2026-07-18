@@ -88,6 +88,12 @@ def build_fhir_context(record: dict[str, Any]) -> dict[str, Any]:
         "patient_demographics": demographics,
         "resource_counts": summary.get("resource_counts", {}),
         "encounter_resource_labels": enc_labels,
+        # Patient-facing after-visit summary. Per its provenance it is extractively
+        # derived from the clinical note's assessment & plan and is NOT clinically
+        # reviewed - corroborating context (esp. for plan/next-step omissions), not
+        # an independent source of truth.
+        "after_visit_summary": record.get("after_visit_summary", ""),
+        "after_visit_summary_provenance": record.get("after_visit_summary_provenance", {}) or {},
     }
 
 
