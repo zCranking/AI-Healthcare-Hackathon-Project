@@ -204,6 +204,7 @@ function mergedFindings(payload) {
       confirm: j ? j.confirm_votes : 0,
       reject: j ? j.reject_votes : 0,
       votes: j ? (j.votes || []) : [],
+      harm: j ? (j.harm_if_trusted || "") : "",
     };
   });
 }
@@ -638,7 +639,7 @@ function renderResults() {
   root.appendChild(header);
 
   // summary strip
-  root.appendChild(renderSummaryStrip(p.summary || {}));
+  root.appendChild(renderSummaryStrip(p.summary || {}, p.evaluation || null));
 
   // body: findings feed | evidence panel
   const bodyGrid = el("div", { style: "flex:1; min-height:0; display:grid; grid-template-columns:1.15fr 1fr;" });
@@ -658,7 +659,7 @@ function caseMeta(p) {
   return bits.join(" · ");
 }
 
-function renderSummaryStrip(s) {
+function renderSummaryStrip(s, evalu) {
   const strip = el("div", {
     style: "display:flex; gap:0; background:var(--card); border-bottom:1px solid var(--line); " +
            "padding:0 10px; flex:none; overflow-x:auto;",
@@ -681,6 +682,27 @@ function renderSummaryStrip(s) {
       el("div", { class: "display", style: "font-weight:700; font-size:26px; line-height:1; color:" + m.color + ";" }, String(m.value ?? 0)),
       el("div", { style: "font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted-3); font-weight:600;" }, m.label)));
   });
+
+  // Detection recall — only present for scored (synthetic) runs with ground truth.
+  if (evalu && evalu.traps_drifted != null) {
+    const drifted = evalu.traps_drifted || 0;
+    const caught = evalu.drift_caught || 0;
+    const pct = evalu.recall == null ? "—" : Math.round(evalu.recall * 100) + "%";
+    const good = drifted > 0 && caught === drifted;
+    strip.appendChild(el("div", {
+      style: "margin-left:auto; padding:12px 22px; display:flex; align-items:center; gap:16px; " +
+             "background:" + (good ? "#e7f6ee" : "#eef1fe") + "; border-left:1px solid var(--line);",
+      title: "Of the planted traps the scribe actually drifted on, how many the harness caught. " +
+             evalu.traps_faithful + " trap(s) the scribe handled faithfully are excluded.",
+    },
+      el("div", { style: "display:flex; flex-direction:column; gap:2px;" },
+        el("div", { class: "display", style: "font-weight:700; font-size:30px; line-height:1; color:" + (good ? "#12a150" : "var(--indigo-dk)") + ";" }, pct),
+        el("div", { style: "font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted-2); font-weight:700;" }, "drift recall")),
+      el("div", { style: "font-size:12px; line-height:1.5; color:var(--muted-2); max-width:190px;" },
+        "Caught " + caught + " of " + drifted + " drifts the scribe actually made · " +
+        evalu.traps_faithful + " trap(s) handled faithfully (correctly not flagged)")
+    ));
+  }
   return strip;
 }
 
@@ -780,7 +802,7 @@ function renderEvidencePanel(p, findings, traps) {
 
   const sel = findings.find((f) => f.id === state.selectedId) || null;
 
-  if (state.tab === "traps") scroll.appendChild(renderTrapsTab(traps));
+  if (state.tab === "traps") scroll.appendChild(renderTrapsTab(traps, p.evaluation || null));
   else if (state.tab === "transcript") scroll.appendChild(renderTranscriptTab(p, sel));
   else if (state.tab === "note") scroll.appendChild(renderNoteTab(p, sel));
   else if (!sel) scroll.appendChild(renderNoSelection());
@@ -811,6 +833,18 @@ function renderEvidenceTab(p, f) {
   box.appendChild(badges);
 
   box.appendChild(el("div", { style: "font-size:16px; font-weight:600; line-height:1.35; margin-bottom:18px;" }, f.claim));
+
+  // clinical harm callout — the "why this matters" for a confirmed drift
+  if (f.harm && f.escalated && f.consensus === "confirm") {
+    box.appendChild(el("div", {
+      style: "display:flex; gap:11px; margin-bottom:18px; padding:13px 14px; border-radius:12px; " +
+             "background:#fbeaea; border:1px solid #f3d0d0;",
+    },
+      el("div", { style: "font-size:16px; line-height:1.2; flex:none;" }, "⚠"),
+      el("div", null,
+        el("div", { style: "font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#b23b3b; margin-bottom:4px;" }, "Clinical risk if trusted"),
+        el("div", { style: "font-size:13.5px; line-height:1.5; color:#7f2a2a;" }, f.harm))));
+  }
 
   // note asserts -> transcript says
   const chain = el("div", { style: "display:flex; flex-direction:column; margin-bottom:20px;" });
@@ -948,19 +982,43 @@ function noteNeedle(note, claim) {
   return note.toLowerCase().includes(claim.toLowerCase()) ? claim : null;
 }
 
-function renderTrapsTab(traps) {
+function renderTrapsTab(traps, evalu) {
   const box = el("div", { style: "padding:18px 20px 40px;" });
-  box.appendChild(el("div", { style: "font-size:13px; color:var(--muted); margin-bottom:14px; line-height:1.5;" },
-    "Ground-truth traps planted in this synthetic case. Compare them against what the harness flagged on the left."));
-  traps.forEach((t) => {
+  const per = (evalu && evalu.per_trap) || [];
+
+  // scored summary line
+  if (evalu && evalu.traps_drifted != null) {
     box.appendChild(el("div", {
-      style: "border:1px solid var(--line-2); border-left:3px solid var(--indigo); border-radius:10px; padding:13px 14px; margin-bottom:10px;",
+      style: "display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;",
     },
-      el("div", { style: "font-weight:700; font-size:13px; color:var(--indigo-dk); margin-bottom:5px;" }, t.trap_type || "trap"),
+      pill("scribe drifted · " + (evalu.traps_drifted || 0), { color: "#c77700", bg: "#fbf1e0" }),
+      pill("caught · " + (evalu.drift_caught || 0), { color: "#12a150", bg: "#e7f6ee" }),
+      pill("handled faithfully · " + (evalu.traps_faithful || 0), { color: "#4a5262", bg: "#f2f3f6" }),
+      (evalu.recall != null ? pill("recall · " + Math.round(evalu.recall * 100) + "%", { color: "#fff", bg: "#4f46e5" }) : null)
+    ));
+  }
+  box.appendChild(el("div", { style: "font-size:13px; color:var(--muted); margin-bottom:14px; line-height:1.5;" },
+    "Ground-truth traps planted in this synthetic case, graded against what the harness caught. A trap only counts toward recall if the scribe actually drifted on it — faithful handling that the auditor correctly ignores is not a miss."));
+
+  traps.forEach((t, i) => {
+    const r = per.find((x) => x.trap_index === i) || null;
+    let tag = null, edge = "var(--indigo)";
+    if (r) {
+      if (!r.note_drifted) { tag = pill("handled faithfully", { color: "#4a5262", bg: "#f2f3f6" }); edge = "#a1a9b5"; }
+      else if (r.caught) { tag = pill(r.confirmed_by_judges ? "caught · judge-confirmed" : "caught", { color: "#12a150", bg: "#e7f6ee" }); edge = "#12a150"; }
+      else { tag = pill("MISSED drift", { color: "#fff", bg: "#d64545" }); edge = "#d64545"; }
+    }
+    box.appendChild(el("div", {
+      style: "border:1px solid var(--line-2); border-left:3px solid " + edge + "; border-radius:10px; padding:13px 14px; margin-bottom:10px;",
+    },
+      el("div", { style: "display:flex; align-items:center; gap:8px; margin-bottom:5px; flex-wrap:wrap;" },
+        el("div", { style: "font-weight:700; font-size:13px; color:var(--indigo-dk);" }, t.trap_type || "trap"),
+        tag),
       el("div", { style: "font-size:13px; line-height:1.5; color:var(--ink-2); margin-bottom:8px;" }, t.description || ""),
       el("div", { style: "font-size:12px; line-height:1.5; color:var(--muted-3);" },
         el("span", { style: "font-weight:600; text-transform:uppercase; letter-spacing:.04em; font-size:10.5px;" }, "Expected note behavior: "),
-        t.expected_note_behavior || "")));
+        t.expected_note_behavior || ""),
+      (r && r.note ? el("div", { style: "font-size:12px; line-height:1.5; color:var(--muted-2); margin-top:8px; font-style:italic;" }, "Grader: " + r.note) : null)));
   });
   return box;
 }
@@ -1045,7 +1103,12 @@ async function boot() {
   render(); // initial paint (picker with loading dropdown)
   try {
     state.abridge = await apiAbridge();
-    if (state.abridge.length) state.abridgeIndex = state.abridge[0].index;
+    if (state.abridge.length) {
+      // Default to the hero demo case (COVID admission — fabricated repeat vitals
+      // is the sharpest live catch); fall back to the first encounter.
+      const hero = state.abridge.find((a) => /covid|pneumonia|admission/i.test(a.visit_title || ""));
+      state.abridgeIndex = hero ? hero.index : state.abridge[0].index;
+    }
   } catch (e) {
     state.error = (e && e.message) || "Could not load encounters.";
   }
