@@ -88,7 +88,9 @@ def run_case(
 
     all_findings = audit(transcript, note, fhir_context=fhir_context)
     problems = flagged(all_findings)
-    judged = judge_findings(transcript, note, problems, max_findings=max_findings)
+    judged = judge_findings(
+        transcript, note, problems, max_findings=max_findings, fhir_context=fhir_context
+    )
 
     return CaseResult(
         source=source,
