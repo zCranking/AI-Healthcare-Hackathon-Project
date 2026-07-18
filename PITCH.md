@@ -37,9 +37,11 @@ We don't just claim it works. Synthetic cases ship **planted ground-truth
 errors**, and the harness grades itself on **drift recall** — of the errors the
 scribe *actually made*, how many did we catch. (Traps the scribe handled
 faithfully don't count — silence there is correct, and we refuse to inflate the
-number with them.)
+number with them. Real misses are surfaced, not hidden.)
 
-> **Drift recall: __%__** across N synthetic stress tests *(filled from the latest batch)*.
+The recall figure is computed live on every synthetic run and shown in the UI
+(the **drift recall** tile and the annotated *Planted traps* tab), so it's
+reproducible in front of the judges rather than a static claim in a slide.
 
 ## The catches are real — on real data
 
