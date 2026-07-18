@@ -81,6 +81,7 @@ def run(req: RunRequest) -> dict[str, Any]:
             note=None if req.regenerate_note else c.note,
             source="abridge",
             label=f"[{req.index}] {c.visit_title}",
+            fhir_context=c.fhir_context,
             max_findings=req.max_findings,
         )
     else:  # custom

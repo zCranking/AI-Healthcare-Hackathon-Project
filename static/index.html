@@ -3,249 +3,1056 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Clinical Note Drift Harness</title>
+<title>Driftwatch — clinical note drift harness</title>
 <style>
+  /* ---- design tokens (Driftwatch) ---- */
   :root {
-    --bg: #0e1116; --panel: #161b22; --panel2: #1c2230; --border: #2a3240;
-    --text: #d7dee8; --muted: #8b97a7; --accent: #4c9aff;
-    --high: #ff5c5c; --medium: #ffb547; --low: #6b7684;
-    --supported: #3fb96b; --unsupported: #ffb547; --contradicted: #ff5c5c; --omitted: #b78bff;
-    --confirm: #3fb96b; --reject: #6b7684; --split: #ff5c5c;
+    --font-display: 'Space Grotesk', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+
+    --bg: #f6f7f9;
+    --ink: #14181f;
+    --ink-2: #2a323e;
+    --muted: #4a5262;
+    --muted-2: #6b7482;
+    --muted-3: #8a94a3;
+    --muted-4: #a1a9b5;
+
+    --indigo: #4f46e5;
+    --indigo-hi: #4338ca;
+    --indigo-dk: #3730a3;
+    --indigo-tint: #eef1fe;
+
+    --line: #e7e9ee;
+    --line-2: #eef0f3;
+    --line-3: #f2f3f6;
+    --card: #fff;
+    --field: #fbfbfc;
+
+    --ok: #12a150;
+    --hl: #ffe9a6;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text);
-    font: 14px/1.5 -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
-  header { padding: 14px 20px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  header h1 { font-size: 16px; margin: 0; font-weight: 650; }
-  header h1 span { color: var(--muted); font-weight: 400; }
-  .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-left: auto; }
-  select, button, label.toggle { background: var(--panel2); color: var(--text);
-    border: 1px solid var(--border); border-radius: 7px; padding: 7px 11px; font-size: 13px; }
-  button { cursor: pointer; }
-  button.run { background: var(--accent); border-color: var(--accent); color: #06121f; font-weight: 650; }
-  button:disabled { opacity: .5; cursor: default; }
-  label.toggle { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: var(--font-sans); font-size: 14px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, select, textarea, input { font-family: inherit; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #d7dbe2; border-radius: 8px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: #c3c9d3; }
+  select:focus, textarea:focus, button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--indigo); outline-offset: 1px;
+  }
+  @keyframes dwspin { to { transform: rotate(360deg); } }
+  @keyframes dwrise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-  .summary { padding: 10px 20px; display: flex; gap: 20px; flex-wrap: wrap;
-    border-bottom: 1px solid var(--border); background: var(--panel); font-size: 13px; }
-  .summary .stat { display: flex; flex-direction: column; }
-  .summary .stat b { font-size: 18px; }
-  .summary .stat span { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
-
-  main { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 1px;
-    background: var(--border); height: calc(100vh - 112px); }
-  .col { background: var(--panel); overflow: auto; padding: 14px 16px; }
-  .col h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
-    margin: 0 0 10px; position: sticky; top: -14px; background: var(--panel); padding: 4px 0; }
-  pre.doc { white-space: pre-wrap; word-wrap: break-word; font-family: ui-monospace, Menlo, Consolas, monospace;
-    font-size: 12.5px; line-height: 1.6; margin: 0; }
-  .note-body { white-space: pre-wrap; }
-
-  .traps { margin-top: 16px; border-top: 1px dashed var(--border); padding-top: 12px; }
-  .traps h3 { font-size: 11px; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
-  .trap { background: var(--panel2); border-left: 3px solid var(--accent); border-radius: 5px;
-    padding: 7px 9px; margin-bottom: 7px; font-size: 12px; }
-  .trap .t { color: var(--accent); font-weight: 650; }
-
-  .finding { background: var(--panel2); border: 1px solid var(--border); border-radius: 9px;
-    padding: 11px 12px; margin-bottom: 11px; border-left-width: 4px; }
-  .finding .claim { font-weight: 600; margin-bottom: 6px; }
-  .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-  .badge { font-size: 10.5px; padding: 2px 7px; border-radius: 20px; font-weight: 650;
-    text-transform: uppercase; letter-spacing: .03em; }
-  .b-status { color: #06121f; }
-  .b-sev { border: 1px solid; }
-  .evidence { font-size: 12px; color: var(--muted); margin-bottom: 9px; border-left: 2px solid var(--border);
-    padding-left: 8px; }
-  .verdict-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
-  .verdict { font-weight: 700; padding: 2px 8px; border-radius: 6px; }
-  .v-confirm { background: rgba(63,185,107,.16); color: var(--confirm); }
-  .v-reject { background: rgba(107,118,132,.2); color: var(--muted); }
-  .v-split { background: rgba(255,92,92,.16); color: var(--split); }
-  .disagree { color: var(--split); font-weight: 700; font-size: 11px; }
-  .votes { display: flex; flex-direction: column; gap: 5px; }
-  .vote { display: flex; gap: 8px; font-size: 11.5px; align-items: baseline; }
-  .vote .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; margin-top: 4px; }
-  .vote .jn { color: var(--muted); min-width: 128px; font-weight: 600; }
-  .vote .jr { color: var(--text); }
-
-  .empty { color: var(--muted); font-style: italic; padding: 20px 0; }
-  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--muted);
-    border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  #custom-inputs { display: none; gap: 8px; padding: 10px 20px; border-bottom: 1px solid var(--border);
-    background: var(--panel); }
-  #custom-inputs textarea { width: 100%; background: var(--panel2); color: var(--text);
-    border: 1px solid var(--border); border-radius: 7px; padding: 8px; font-family: ui-monospace, monospace;
-    font-size: 12px; resize: vertical; }
+  .mono { font-family: var(--font-mono); }
+  .display { font-family: var(--font-display); }
+  .rise { animation: dwrise .2s ease; }
+  .spinner {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid #dfe2e8; border-top-color: var(--indigo);
+    animation: dwspin .7s linear infinite;
+  }
+  .btn-primary {
+    border: none; border-radius: 11px; background: var(--indigo); color: #fff;
+    font-weight: 600; cursor: pointer; box-shadow: 0 4px 14px rgba(79,70,229,.3);
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-primary:hover { background: var(--indigo-hi); }
+  .btn-primary:disabled { opacity: .6; cursor: default; box-shadow: none; }
+  mark.dw {
+    background: var(--hl); color: var(--ink); border-radius: 3px; padding: 1px 2px;
+    box-shadow: 0 0 0 1px rgba(198,119,0,.25);
+  }
+  .logo-badge {
+    border-radius: 9px; background: linear-gradient(140deg,#4f46e5,#6d5ef0);
+    display: flex; align-items: center; justify-content: center; flex: none;
+    box-shadow: 0 2px 8px rgba(79,70,229,.32);
+  }
+  .logo-ring { border-radius: 50%; border-style: solid; border-color: #fff; border-right-color: transparent; transform: rotate(-40deg); }
 </style>
 </head>
 <body>
-<header>
-  <h1>Clinical Note Drift Harness <span>&mdash; catches when an AI note silently drifts from the transcript</span></h1>
-  <div class="controls">
-    <select id="mode">
-      <option value="abridge">Abridge encounter</option>
-      <option value="synthetic">Synthetic trap case</option>
-      <option value="custom">Paste your own</option>
-    </select>
-    <select id="abridge-select"></select>
-    <label class="toggle" id="regen-wrap"><input type="checkbox" id="regenerate" /> regenerate note</label>
-    <button class="run" id="run">Run harness</button>
-  </div>
-</header>
-
-<div id="custom-inputs">
-  <textarea id="c-transcript" rows="4" placeholder="Paste a DR:/PT: transcript here..."></textarea>
-  <textarea id="c-note" rows="3" placeholder="(optional) paste a note to audit; leave blank to generate one"></textarea>
-</div>
-
-<div class="summary" id="summary"><span class="empty">Run a case to see results.</span></div>
-
-<main>
-  <div class="col" id="col-transcript"><h2>Transcript</h2><div id="transcript"></div></div>
-  <div class="col" id="col-note"><h2>Generated note (system under test)</h2><div id="note"></div></div>
-  <div class="col" id="col-findings"><h2>Flagged discrepancies &amp; judge votes</h2><div id="findings"></div></div>
-</main>
+<div id="app"></div>
 
 <script>
+"use strict";
+
+/* ============================================================
+   Tiny safe DOM helper — every server string goes through
+   textContent / text nodes, so nothing is ever injected raw.
+   ============================================================ */
+function el(tag, attrs, ...children) {
+  const e = document.createElement(tag);
+  if (attrs) {
+    for (const k in attrs) {
+      const v = attrs[k];
+      if (v == null || v === false) continue;
+      if (k === "style") e.style.cssText = v;
+      else if (k === "class") e.className = v;
+      else if (k === "text") e.textContent = v;
+      else if (k === "html") { /* intentionally unused */ }
+      else if (k.slice(0, 2) === "on" && typeof v === "function") e.addEventListener(k.slice(2).toLowerCase(), v);
+      else e.setAttribute(k, v);
+    }
+  }
+  const add = (c) => {
+    if (c == null || c === false || c === true) return;
+    if (Array.isArray(c)) { c.forEach(add); return; }
+    e.appendChild(typeof c === "object" ? c : document.createTextNode(String(c)));
+  };
+  children.forEach(add);
+  return e;
+}
 const $ = (id) => document.getElementById(id);
-const STATUS_COLORS = { supported:'--supported', unsupported:'--unsupported', contradicted:'--contradicted', omitted:'--omitted' };
-const cssv = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-async function loadAbridge() {
-  const r = await fetch('/api/abridge');
-  const cases = await r.json();
-  $('abridge-select').innerHTML = cases
-    .map(c => `<option value="${c.index}">[${c.index}] ${c.visit_title}</option>`).join('');
+/* ---------------- color systems (from the mockup) ---------------- */
+const STATUS = {
+  supported:    { c: "#12a150", t: "#e7f6ee" },
+  unsupported:  { c: "#c77700", t: "#fbf1e0" },
+  contradicted: { c: "#d64545", t: "#fbeaea" },
+  omitted:      { c: "#8256d0", t: "#f2ecfb" },
+};
+const SEV = { high: "#d64545", medium: "#c77700", low: "#8a94a3", split: "#d64545" };
+const VERDICT = { confirm: "#12a150", reject: "#8a94a3", split: "#d64545" };
+const SOURCE_META = {
+  transcript: { label: "transcript", c: "#0f766e", t: "#e6f4f1" },
+  fhir:       { label: "FHIR chart", c: "#4f46e5", t: "#eef1fe" },
+  both:       { label: "transcript + FHIR", c: "#8256d0", t: "#f2ecfb" },
+  neither:    { label: "no source", c: "#8a94a3", t: "#f2f3f6" },
+};
+
+/* ---------------- application state ---------------- */
+const state = {
+  screen: "picker",       // picker | running | results
+  source: "abridge",      // abridge | synthetic | custom
+  abridge: [],            // encounter options
+  abridgeIndex: null,
+  regenerate: false,
+  recent: [],             // prior run payloads
+  payload: null,          // current result payload
+  selectedId: null,       // index into merged findings
+  filter: "all",
+  tab: "evidence",        // evidence | transcript | note | traps
+  stageIndex: 0,
+  error: null,
+};
+
+const STAGES = [
+  "Transcript ingested",
+  "Note generated (system under test)",
+  "Tracing claims to the transcript & chart",
+  "Polling 3 independent judges",
+  "Aggregating report",
+];
+
+/* ---------------- API ---------------- */
+async function apiAbridge() {
+  const r = await fetch("/api/abridge");
+  if (!r.ok) throw new Error("Failed to load encounters (" + r.status + ")");
+  return r.json();
 }
-
-function syncControls() {
-  const mode = $('mode').value;
-  $('abridge-select').style.display = mode === 'abridge' ? '' : 'none';
-  $('regen-wrap').style.display = mode === 'abridge' ? '' : 'none';
-  $('custom-inputs').style.display = mode === 'custom' ? 'flex' : 'none';
-}
-
-function renderTranscript(res) {
-  const el = $('transcript');
-  const pre = document.createElement('pre');
-  pre.className = 'doc';
-  pre.textContent = res.transcript;
-  el.innerHTML = '';
-  el.appendChild(pre);
-  if (res.ground_truth_traps && res.ground_truth_traps.length) {
-    const box = document.createElement('div');
-    box.className = 'traps';
-    box.innerHTML = '<h3>Planted ground-truth traps</h3>' + res.ground_truth_traps.map(t =>
-      `<div class="trap"><span class="t">${t.trap_type}</span> &mdash; ${escapeHtml(t.description)}
-       <div style="color:var(--muted);margin-top:3px">expected: ${escapeHtml(t.expected_note_behavior)}</div></div>`
-    ).join('');
-    el.appendChild(box);
-  }
-}
-
-function renderNote(res) {
-  const el = $('note');
-  el.innerHTML = '';
-  const div = document.createElement('div');
-  div.className = 'note-body doc';
-  div.textContent = res.note;
-  el.appendChild(div);
-  if (res.note_provided) {
-    const tag = document.createElement('div');
-    tag.style.cssText = 'color:var(--muted);font-size:11px;margin-bottom:8px';
-    tag.textContent = 'Note supplied with the case (audited as-is).';
-    el.prepend(tag);
-  }
-}
-
-function renderFindings(res) {
-  const el = $('findings');
-  const judged = res.judged || [];
-  if (!judged.length) {
-    el.innerHTML = '<div class="empty">No discrepancies escalated to the judges for this case.</div>';
-    return;
-  }
-  el.innerHTML = judged.map(j => {
-    const f = j.finding;
-    const statusVar = STATUS_COLORS[f.status] || '--muted';
-    const sevVar = '--' + (j.severity_verdict === 'split' ? 'high' : j.severity_verdict || f.severity);
-    const verdictClass = j.consensus_verdict === 'confirm' ? 'v-confirm'
-      : j.consensus_verdict === 'reject' ? 'v-reject' : 'v-split';
-    const votes = (j.votes || []).map(v => {
-      const c = v.verdict === 'confirm' ? cssv('--confirm') : cssv('--reject');
-      return `<div class="vote"><span class="dot" style="background:${c}"></span>
-        <span class="jn">${v.judge}</span>
-        <span class="jr"><b style="color:${c}">${v.verdict}</b> / ${v.severity} &mdash; ${escapeHtml(v.rationale)}</span></div>`;
-    }).join('');
-    return `<div class="finding" style="border-left-color:${cssv(statusVar)}">
-      <div class="claim">${escapeHtml(f.claim)}</div>
-      <div class="badges">
-        <span class="badge b-status" style="background:${cssv(statusVar)}">${f.status}</span>
-        <span class="badge b-sev" style="color:${cssv(sevVar)};border-color:${cssv(sevVar)}">severity: ${j.severity_verdict}</span>
-        ${j.disagreement ? '<span class="badge" style="background:var(--split);color:#fff">judges split</span>' : ''}
-      </div>
-      <div class="evidence">${escapeHtml(f.transcript_evidence)}</div>
-      <div class="verdict-row">
-        <span class="verdict ${verdictClass}">${j.consensus_verdict.toUpperCase()}</span>
-        <span style="color:var(--muted)">${j.confirm_votes}&nbsp;confirm / ${j.reject_votes}&nbsp;reject</span>
-      </div>
-      <div class="votes">${votes}</div>
-    </div>`;
-  }).join('');
-}
-
-function renderSummary(res) {
-  const s = res.summary || {};
-  const stat = (v, label) => `<div class="stat"><b>${v ?? 0}</b><span>${label}</span></div>`;
-  $('summary').innerHTML =
-    stat(s.claims_audited, 'claims audited') +
-    stat(s.flagged, 'flagged') +
-    stat(s.escalated_to_judges, 'sent to judges') +
-    stat(s.confirmed_discrepancies, 'confirmed') +
-    stat(s.high_severity_confirmed, 'high-severity') +
-    stat(s.judge_disagreements, 'judge splits');
-}
-
-function escapeHtml(s) {
-  return String(s == null ? '' : s).replace(/[&<>"]/g, c =>
-    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
-}
-
-async function run() {
-  const mode = $('mode').value;
-  const body = { mode, max_findings: 6 };
-  if (mode === 'abridge') {
-    body.index = parseInt($('abridge-select').value, 10);
-    body.regenerate_note = $('regenerate').checked;
-  } else if (mode === 'custom') {
-    body.transcript = $('c-transcript').value;
-    body.note = $('c-note').value.trim() || null;
-  }
-  const btn = $('run');
-  btn.disabled = true;
-  const label = btn.textContent;
-  btn.innerHTML = '<span class="spinner"></span> running (~30-60s)';
-  $('findings').innerHTML = '<div class="empty">Generating note, auditing claims, polling 3 judges&hellip;</div>';
+async function apiResults() {
   try {
-    const r = await fetch('/api/run', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
-    });
-    if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
-    const res = await r.json();
-    renderSummary(res); renderTranscript(res); renderNote(res); renderFindings(res);
-  } catch (e) {
-    $('findings').innerHTML = `<div class="empty" style="color:var(--high)">Error: ${escapeHtml(e.message)}</div>`;
-  } finally {
-    btn.disabled = false; btn.textContent = label;
+    const r = await fetch("/api/results");
+    if (!r.ok) return [];
+    return r.json();
+  } catch (_) { return []; }
+}
+async function apiRun(body) {
+  const r = await fetch("/api/run", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  let data = null;
+  try { data = await r.json(); } catch (_) {}
+  if (!r.ok) throw new Error((data && data.detail) || ("Run failed (" + r.status + ")"));
+  return data;
+}
+
+/* ---------------- derived data helpers ---------------- */
+function judgedFor(payload, f) {
+  return (payload.judged || []).find((j) =>
+    j.finding &&
+    j.finding.claim === f.claim &&
+    j.finding.status === f.status &&
+    j.finding.transcript_evidence === f.transcript_evidence
+  ) || null;
+}
+
+// merge findings with their judge verdicts and assign stable ids
+function mergedFindings(payload) {
+  return (payload.findings || []).map((f, i) => {
+    const j = judgedFor(payload, f);
+    return {
+      id: i,
+      claim: f.claim,
+      status: f.status,
+      severity: f.severity,
+      evidence: f.transcript_evidence,
+      evidenceSource: f.evidence_source,
+      escalated: !!j,
+      consensus: j ? j.consensus_verdict : null,
+      sevVerdict: j ? j.severity_verdict : f.severity,
+      disagreement: j ? !!j.disagreement : false,
+      confirm: j ? j.confirm_votes : 0,
+      reject: j ? j.reject_votes : 0,
+      votes: j ? (j.votes || []) : [],
+    };
+  });
+}
+
+const SEV_RANK = { high: 0, medium: 1, low: 2, split: 0 };
+const STATUS_RANK = { contradicted: 0, omitted: 1, unsupported: 2, supported: 3 };
+
+function orderFindings(list) {
+  return list.slice().sort((a, b) => {
+    const ea = a.escalated && a.consensus === "confirm" ? 0 : 1;
+    const eb = b.escalated && b.consensus === "confirm" ? 0 : 1;
+    if (ea !== eb) return ea - eb;
+    const sa = SEV_RANK[a.severity] ?? 3, sb = SEV_RANK[b.severity] ?? 3;
+    if (sa !== sb) return sa - sb;
+    return (STATUS_RANK[a.status] ?? 4) - (STATUS_RANK[b.status] ?? 4);
+  });
+}
+function matchFilter(f, key) {
+  switch (key) {
+    case "drifts": return f.status !== "supported";
+    case "high": return f.severity === "high";
+    case "splits": return f.disagreement;
+    case "confirmed": return f.escalated && f.consensus === "confirm";
+    default: return true;
   }
 }
 
-$('mode').addEventListener('change', syncControls);
-$('run').addEventListener('click', run);
-loadAbridge(); syncControls();
+/* ---------------- small view helpers ---------------- */
+function pill(text, opts) {
+  opts = opts || {};
+  const s =
+    "font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; " +
+    "padding:3px 8px; border-radius:14px; white-space:nowrap; " +
+    (opts.bg ? "background:" + opts.bg + ";" : "") +
+    (opts.color ? "color:" + opts.color + ";" : "") +
+    (opts.border ? "border:1px solid " + opts.border + ";" : "");
+  return el("span", { style: s }, text);
+}
+
+function statusPill(f) {
+  const sc = STATUS[f.status] || STATUS.unsupported;
+  return pill(f.status, { color: sc.c, bg: sc.t });
+}
+function sevPill(sev) {
+  const c = SEV[sev] || SEV.low;
+  return pill((sev === "split" ? "split" : sev) + " severity", { color: c, border: c });
+}
+function sourcePill(src) {
+  const m = SOURCE_META[src] || SOURCE_META.neither;
+  return pill("src · " + m.label, { color: m.c, bg: m.t });
+}
+function verdictPill(f) {
+  const c = f.disagreement ? VERDICT.split : (VERDICT[f.consensus] || VERDICT.reject);
+  return pill(f.consensus || "", { color: "#fff", bg: c });
+}
+function splitPill() {
+  return el("span", {
+    style: "font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; " +
+           "padding:3px 8px; border-radius:14px; color:#d64545; background:#fbeaea; " +
+           "display:inline-flex; align-items:center; gap:4px;",
+  }, el("span", { style: "width:5px; height:5px; border-radius:50%; background:#d64545;" }), "judges split");
+}
+
+// parse a transcript string into speaker turns
+function parseTranscript(text) {
+  const lines = String(text || "").split(/\r?\n/);
+  const turns = [];
+  const re = /^\s*([A-Za-z][A-Za-z .#0-9_-]{0,24}?)\s*[:\-–]\s+(.*)$/;
+  for (const raw of lines) {
+    if (!raw.trim()) continue;
+    const m = raw.match(re);
+    if (m) {
+      turns.push({ speaker: m[1].trim(), text: m[2].trim() });
+    } else if (turns.length) {
+      turns[turns.length - 1].text += " " + raw.trim();
+    } else {
+      turns.push({ speaker: "", text: raw.trim() });
+    }
+  }
+  return turns;
+}
+function speakerRole(sp) {
+  const s = sp.toLowerCase();
+  if (/^(dr|doc|doctor|physician|clinician|provider|md|prov)/.test(s)) return "dr";
+  if (/^(pt|patient|pat)/.test(s)) return "pt";
+  return "other";
+}
+// pull the longest quoted span out of an evidence string, for highlighting
+function extractQuote(ev) {
+  if (!ev) return null;
+  const quotes = ev.match(/[“"']([^“”"']{6,})[”"']/g) || [];
+  let best = null;
+  for (const q of quotes) {
+    const inner = q.replace(/^[“"']|[”"']$/g, "");
+    if (!best || inner.length > best.length) best = inner;
+  }
+  return best;
+}
+// render a text string, highlighting the first occurrence of `needle` (case-insensitive)
+function highlighted(text, needle) {
+  text = String(text || "");
+  if (!needle) return [document.createTextNode(text)];
+  const i = text.toLowerCase().indexOf(needle.toLowerCase());
+  if (i < 0) return [document.createTextNode(text)];
+  const out = [];
+  if (i > 0) out.push(document.createTextNode(text.slice(0, i)));
+  out.push(el("mark", { class: "dw" }, text.slice(i, i + needle.length)));
+  const rest = text.slice(i + needle.length);
+  if (rest) out.push(document.createTextNode(rest));
+  return out;
+}
+
+/* ============================================================
+   RENDER: mount
+   ============================================================ */
+function render() {
+  const root = $("app");
+  root.textContent = "";
+  if (state.screen === "picker") root.appendChild(renderPicker());
+  else if (state.screen === "running") root.appendChild(renderRunning());
+  else root.appendChild(renderResults());
+}
+
+/* ---------------- header logo ---------------- */
+function logo(size) {
+  const inner = Math.round(size * 0.38);
+  return el("div", { class: "logo-badge", style: "width:" + size + "px; height:" + size + "px;" },
+    el("div", { class: "logo-ring", style: "width:" + inner + "px; height:" + inner + "px; border-width:" + Math.max(2, Math.round(size * 0.09)) + "px;" })
+  );
+}
+
+/* ============================================================
+   SCREEN 1 — PICKER
+   ============================================================ */
+function renderPicker() {
+  const wrap = el("div", { style: "min-height:100vh;" });
+  const page = el("div", { style: "max-width:1120px; margin:0 auto; padding:0 28px 64px;" });
+  wrap.appendChild(page);
+
+  // top bar
+  page.appendChild(el("div", { style: "display:flex; align-items:center; gap:12px; padding:22px 0 6px;" },
+    logo(34),
+    el("div", { class: "display", style: "font-weight:700; font-size:18px; letter-spacing:-.01em;" }, "Driftwatch"),
+    el("div", { class: "mono", style: "margin-left:auto; font-size:12px; color:var(--muted-2); display:flex; gap:14px; align-items:center;" },
+      el("span", null, "model · claude"),
+      el("span", { style: "width:6px; height:6px; border-radius:50%; background:#12a150; box-shadow:0 0 0 3px rgba(18,161,80,.16);" })
+    )
+  ));
+
+  // hero
+  const hero = el("div", { style: "padding:40px 0 34px; border-bottom:1px solid var(--line); margin-bottom:34px;" });
+  hero.appendChild(el("div", {
+    style: "display:inline-flex; align-items:center; gap:8px; padding:5px 11px; border-radius:20px; " +
+           "background:#fbeaea; color:#b23b3b; font-size:12px; font-weight:600; margin-bottom:18px;",
+  }, el("span", { style: "width:6px; height:6px; border-radius:50%; background:#d64545;" }),
+     "Adversarial red-team harness for ambient scribes"));
+  hero.appendChild(el("h1", {
+    class: "display",
+    style: "font-weight:700; font-size:46px; line-height:1.04; letter-spacing:-.025em; margin:0 0 16px; max-width:780px;",
+  }, "Catch the AI note that quietly lies about the visit."));
+  hero.appendChild(el("p", {
+    style: "font-size:16px; line-height:1.6; color:var(--muted); margin:0; max-width:620px;",
+  }, "A garbled note is obvious. A plausible one that hardens a hedged “I don’t think so” into a clean “denies,” or asserts a stopped medication, is the dangerous failure. Driftwatch traces every claim in a generated note back to what was actually said — and to the structured chart."));
+  page.appendChild(hero);
+
+  // error banner
+  if (state.error) {
+    page.appendChild(el("div", {
+      style: "margin-bottom:20px; padding:12px 14px; border-radius:11px; background:#fbeaea; " +
+             "border:1px solid #f3d0d0; color:#b23b3b; font-size:13px;",
+    }, "⚠ " + state.error));
+  }
+
+  // grid
+  const grid = el("div", { style: "display:grid; grid-template-columns:1.15fr 1fr; gap:24px; align-items:start;" });
+  page.appendChild(grid);
+  grid.appendChild(renderAuditCard());
+  grid.appendChild(renderSideColumn());
+
+  return wrap;
+}
+
+function renderAuditCard() {
+  const card = el("div", {
+    style: "background:var(--card); border:1px solid var(--line); border-radius:16px; " +
+           "box-shadow:0 1px 2px rgba(20,24,31,.04), 0 8px 24px rgba(20,24,31,.05); overflow:hidden;",
+  });
+  card.appendChild(el("div", {
+    style: "padding:18px 22px; border-bottom:1px solid var(--line-2); display:flex; align-items:center; justify-content:space-between;",
+  }, el("div", { style: "font-weight:700; font-size:15px;" }, "New audit run"),
+     el("div", { class: "mono", style: "font-size:11px; color:var(--muted-3);" }, "POST /api/run")));
+
+  const body = el("div", { style: "padding:22px;" });
+  card.appendChild(body);
+
+  // source selector
+  body.appendChild(sectionLabel("Source"));
+  const sources = [
+    { k: "abridge", label: "Abridge", sub: "real encounter" },
+    { k: "synthetic", label: "Synthetic", sub: "planted traps" },
+    { k: "custom", label: "Paste", sub: "your own" },
+  ];
+  const srcGrid = el("div", { style: "display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px;" });
+  sources.forEach((s) => {
+    const on = state.source === s.k;
+    srcGrid.appendChild(el("button", {
+      onclick: () => { state.source = s.k; state.error = null; render(); },
+      style: "text-align:left; padding:11px 12px; border-radius:11px; cursor:pointer; transition:.12s; " +
+             "border:1px solid " + (on ? "var(--indigo)" : "#e2e5ea") + "; " +
+             "background:" + (on ? "var(--indigo-tint)" : "#fff") + "; " +
+             "color:" + (on ? "var(--indigo-dk)" : "var(--muted)") + "; " +
+             "box-shadow:" + (on ? "0 1px 4px rgba(79,70,229,.14)" : "none") + ";",
+    }, el("div", { style: "font-weight:600; font-size:13px;" }, s.label),
+       el("div", { style: "font-size:11px; margin-top:2px; opacity:.72;" }, s.sub)));
+  });
+  body.appendChild(srcGrid);
+
+  // per-source controls
+  if (state.source === "abridge") {
+    body.appendChild(sectionLabel("Encounter"));
+    const sel = el("select", {
+      onchange: (e) => { state.abridgeIndex = parseInt(e.target.value, 10); },
+      style: "width:100%; padding:11px 12px; border:1px solid #dfe2e8; border-radius:10px; " +
+             "background:var(--field); font-size:13.5px; color:var(--ink); margin-bottom:14px;",
+    });
+    if (!state.abridge.length) {
+      sel.appendChild(el("option", null, "loading encounters…"));
+    } else {
+      state.abridge.forEach((o) => {
+        const opt = el("option", { value: String(o.index) }, "[" + o.index + "] " + o.visit_title);
+        if (state.abridgeIndex === o.index) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+    body.appendChild(sel);
+
+    const toggle = el("label", {
+      style: "display:flex; align-items:center; gap:9px; font-size:13px; color:var(--muted); cursor:pointer;",
+    });
+    const cb = el("input", {
+      type: "checkbox",
+      onchange: (e) => { state.regenerate = e.target.checked; },
+      style: "width:16px; height:16px; accent-color:var(--indigo);",
+    });
+    cb.checked = state.regenerate;
+    toggle.appendChild(cb);
+    toggle.appendChild(document.createTextNode("Regenerate the note to stress-test our own scribe"));
+    body.appendChild(toggle);
+  } else if (state.source === "synthetic") {
+    body.appendChild(el("div", {
+      style: "font-size:13.5px; line-height:1.6; color:var(--muted); background:var(--bg); " +
+             "border:1px solid var(--line-2); border-radius:10px; padding:14px;",
+    }, "Generates a fresh transcript with deliberately planted traps — a stopped med, a hedged negative, a symptom raised then dismissed — plus the ground-truth trap list, so you can measure what the harness caught."));
+  } else {
+    const ta = el("textarea", {
+      id: "c-transcript", rows: "5",
+      placeholder: "Paste a DR:/PT: transcript here…",
+      style: "width:100%; padding:12px; border:1px solid #dfe2e8; border-radius:10px; " +
+             "background:var(--field); font-family:var(--font-mono); font-size:12.5px; resize:vertical; color:var(--ink);",
+    });
+    body.appendChild(ta);
+    const ta2 = el("textarea", {
+      id: "c-note", rows: "3",
+      placeholder: "(optional) paste a note to audit as-is — leave blank to generate one",
+      style: "width:100%; margin-top:10px; padding:12px; border:1px solid #dfe2e8; border-radius:10px; " +
+             "background:var(--field); font-family:var(--font-mono); font-size:12.5px; resize:vertical; color:var(--ink);",
+    });
+    body.appendChild(ta2);
+  }
+
+  // run button
+  const runBtn = el("button", {
+    class: "btn-primary",
+    onclick: startRun,
+    style: "margin-top:20px; width:100%; padding:13px; font-size:14.5px;",
+  }, "Run harness", el("span", { style: "opacity:.8;" }, "→"));
+  body.appendChild(runBtn);
+  body.appendChild(el("div", {
+    style: "text-align:center; font-size:11.5px; color:var(--muted-4); margin-top:10px;",
+  }, "generate note · trace every claim · poll 3 judges · ~30–60s"));
+
+  return card;
+}
+
+function renderSideColumn() {
+  const col = el("div", { style: "display:flex; flex-direction:column; gap:24px;" });
+
+  // recent runs
+  const recent = el("div", {
+    style: "background:var(--card); border:1px solid var(--line); border-radius:16px; " +
+           "box-shadow:0 1px 2px rgba(20,24,31,.04); overflow:hidden;",
+  });
+  recent.appendChild(el("div", {
+    style: "padding:16px 20px; border-bottom:1px solid var(--line-2); font-weight:700; font-size:14px;",
+  }, "Recent runs"));
+  if (!state.recent.length) {
+    recent.appendChild(el("div", { style: "padding:16px 20px; font-size:13px; color:var(--muted-3);" },
+      "No runs yet — launch one to populate history."));
+  } else {
+    state.recent.forEach((p, idx) => {
+      const s = p.summary || {};
+      const hi = s.high_severity_confirmed > 0;
+      const conf = s.confirmed_discrepancies > 0;
+      const dot = hi ? "#d64545" : conf ? "#c77700" : "#12a150";
+      const meta = (s.confirmed_discrepancies || 0) + " confirmed · " + (s.judge_disagreements || 0) + " splits";
+      recent.appendChild(el("div", {
+        onclick: () => { state.payload = p; state.selectedId = pickDefault(mergedFindings(p)); state.filter = "all"; state.tab = "evidence"; state.screen = "results"; render(); },
+        style: "padding:13px 20px; border-bottom:1px solid var(--line-3); cursor:pointer; display:flex; align-items:center; gap:12px;",
+        onmouseenter: (e) => { e.currentTarget.style.background = "#fafbfc"; },
+        onmouseleave: (e) => { e.currentTarget.style.background = ""; },
+      },
+        el("div", { style: "width:8px; height:8px; border-radius:50%; flex:none; background:" + dot + ";" }),
+        el("div", { style: "min-width:0; flex:1;" },
+          el("div", { style: "font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" }, p.label || "run"),
+          el("div", { style: "font-size:11px; color:var(--muted-3); margin-top:2px;" }, meta)),
+        el("div", { class: "mono", style: "font-size:11px; color:var(--muted-4); flex:none;" }, p.source || "")
+      ));
+    });
+  }
+  col.appendChild(recent);
+
+  // how it works
+  const how = el("div", {
+    style: "background:var(--card); border:1px solid var(--line); border-radius:16px; " +
+           "box-shadow:0 1px 2px rgba(20,24,31,.04); padding:18px 20px;",
+  });
+  how.appendChild(el("div", { style: "font-weight:700; font-size:14px; margin-bottom:14px;" }, "How it works"));
+  const steps = [
+    "A transcript is generated with planted traps, or pulled from a real Abridge encounter.",
+    "The scribe writes a SOAP note — the system under test.",
+    "An auditor traces every note claim back to the transcript and the structured FHIR chart.",
+    "Three independently-framed Claude judges vote on each flag.",
+    "Disagreement is surfaced as a split — never averaged away.",
+  ];
+  steps.forEach((t, i) => {
+    how.appendChild(el("div", { style: "display:flex; gap:12px; padding:7px 0;" },
+      el("div", {
+        class: "display",
+        style: "width:22px; height:22px; border-radius:7px; background:var(--indigo-tint); color:var(--indigo); " +
+               "font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none;",
+      }, String(i + 1)),
+      el("div", { style: "font-size:13px; line-height:1.45; color:var(--muted);" }, t)));
+  });
+  col.appendChild(how);
+
+  return col;
+}
+
+function sectionLabel(t) {
+  return el("div", {
+    style: "font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; " +
+           "color:var(--muted-3); margin-bottom:10px;",
+  }, t);
+}
+
+/* ============================================================
+   SCREEN 2 — RUNNING
+   ============================================================ */
+function renderRunning() {
+  const wrap = el("div", {
+    style: "min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px;",
+  });
+  const card = el("div", {
+    style: "width:100%; max-width:440px; background:var(--card); border:1px solid var(--line); " +
+           "border-radius:18px; box-shadow:0 20px 60px rgba(20,24,31,.12); padding:28px;",
+  });
+  card.appendChild(el("div", { class: "display", style: "font-weight:700; font-size:18px; margin-bottom:4px;" }, "Running harness"));
+  card.appendChild(el("div", { style: "font-size:13px; color:var(--muted-3); margin-bottom:22px;" }, runningLabel()));
+
+  STAGES.forEach((label, i) => {
+    const done = i < state.stageIndex;
+    const active = i === state.stageIndex;
+    let icon;
+    if (done) {
+      icon = el("div", {
+        style: "width:22px; height:22px; border-radius:50%; background:#12a150; color:#fff; " +
+               "display:flex; align-items:center; justify-content:center; font-size:12px; flex:none;",
+      }, "✓");
+    } else if (active) {
+      icon = el("div", { style: "width:22px; height:22px; flex:none; display:flex; align-items:center; justify-content:center;" },
+        el("div", { class: "spinner" }));
+    } else {
+      icon = el("div", { style: "width:22px; height:22px; border-radius:50%; border:2px solid var(--line); flex:none;" });
+    }
+    const color = done ? "var(--muted)" : active ? "var(--ink)" : "var(--muted-4)";
+    card.appendChild(el("div", { style: "display:flex; align-items:center; gap:13px; padding:9px 0;" },
+      icon, el("div", { style: "font-size:14px; font-weight:500; color:" + color + ";" }, label)));
+  });
+
+  card.appendChild(el("div", {
+    style: "margin-top:14px; font-size:11.5px; color:var(--muted-4); text-align:center;",
+  }, "The full pipeline takes ~30–60s. Hang tight."));
+
+  wrap.appendChild(card);
+  return wrap;
+}
+function runningLabel() {
+  if (state.source === "synthetic") return "Synthetic trap case";
+  if (state.source === "custom") return "Custom transcript";
+  const cur = state.abridge.find((a) => a.index === state.abridgeIndex);
+  return cur ? "[" + cur.index + "] " + cur.visit_title : "Abridge encounter";
+}
+
+/* ============================================================
+   SCREEN 3 — RESULTS
+   ============================================================ */
+function renderResults() {
+  const p = state.payload || {};
+  const findings = mergedFindings(p);
+  const traps = p.ground_truth_traps || [];
+
+  const root = el("div", { style: "height:100vh; display:flex; flex-direction:column;" });
+
+  // header
+  const header = el("div", {
+    style: "display:flex; align-items:center; gap:16px; padding:12px 22px; background:var(--card); " +
+           "border-bottom:1px solid var(--line); flex:none;",
+  });
+  header.appendChild(el("button", {
+    onclick: goHome,
+    style: "border:1px solid #e2e5ea; background:#fff; border-radius:9px; padding:7px 12px; " +
+           "font-size:13px; cursor:pointer; color:var(--muted); display:flex; align-items:center; gap:6px;",
+    onmouseenter: (e) => { e.currentTarget.style.background = "var(--bg)"; },
+    onmouseleave: (e) => { e.currentTarget.style.background = "#fff"; },
+  }, "← Runs"));
+  header.appendChild(logo(28));
+  header.appendChild(el("div", { style: "min-width:0;" },
+    el("div", { style: "font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" }, p.label || "Audit result"),
+    el("div", { class: "mono", style: "font-size:11.5px; color:var(--muted-3);" }, caseMeta(p))));
+  header.appendChild(el("div", { style: "margin-left:auto; display:flex; gap:8px; flex:none;" },
+    pill(p.source || "run", { color: "var(--indigo)", bg: "var(--indigo-tint)" })));
+  root.appendChild(header);
+
+  // summary strip
+  root.appendChild(renderSummaryStrip(p.summary || {}));
+
+  // body: findings feed | evidence panel
+  const bodyGrid = el("div", { style: "flex:1; min-height:0; display:grid; grid-template-columns:1.15fr 1fr;" });
+  root.appendChild(bodyGrid);
+  bodyGrid.appendChild(renderFeed(findings));
+  bodyGrid.appendChild(renderEvidencePanel(p, findings, traps));
+
+  return root;
+}
+
+function caseMeta(p) {
+  const bits = [];
+  bits.push(p.source || "run");
+  const turns = parseTranscript(p.transcript || "").length;
+  if (turns) bits.push(turns + " turns");
+  bits.push(p.note_provided ? "note audited as-is" : "note regenerated");
+  return bits.join(" · ");
+}
+
+function renderSummaryStrip(s) {
+  const strip = el("div", {
+    style: "display:flex; gap:0; background:var(--card); border-bottom:1px solid var(--line); " +
+           "padding:0 10px; flex:none; overflow-x:auto;",
+  });
+  const conf = s.confirmed_discrepancies || 0;
+  const hi = s.high_severity_confirmed || 0;
+  const splits = s.judge_disagreements || 0;
+  const stats = [
+    { value: s.claims_audited, label: "claims audited", color: "var(--ink)" },
+    { value: s.flagged, label: "flagged", color: "#c77700" },
+    { value: s.escalated_to_judges, label: "sent to judges", color: "var(--indigo)" },
+    { value: conf, label: "confirmed drifts", color: conf ? "#d64545" : "var(--muted-3)" },
+    { value: hi, label: "high-sev confirmed", color: hi ? "#d64545" : "var(--muted-3)" },
+    { value: splits, label: "judge splits", color: splits ? "#d64545" : "var(--muted-3)" },
+  ];
+  stats.forEach((m) => {
+    strip.appendChild(el("div", {
+      style: "padding:14px 20px; display:flex; flex-direction:column; gap:3px; min-width:118px; border-right:1px solid var(--line-3);",
+    },
+      el("div", { class: "display", style: "font-weight:700; font-size:26px; line-height:1; color:" + m.color + ";" }, String(m.value ?? 0)),
+      el("div", { style: "font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted-3); font-weight:600;" }, m.label)));
+  });
+  return strip;
+}
+
+function renderFeed(findings) {
+  const wrap = el("div", { style: "display:flex; flex-direction:column; min-height:0; border-right:1px solid var(--line);" });
+
+  // header + filter chips
+  const head = el("div", { style: "padding:14px 20px 12px; flex:none; background:var(--field); border-bottom:1px solid var(--line-2);" });
+  const ordered = orderFindings(findings);
+  const visible = ordered.filter((f) => matchFilter(f, state.filter));
+  head.appendChild(el("div", { style: "display:flex; align-items:baseline; gap:8px; margin-bottom:12px;" },
+    el("div", { style: "font-weight:700; font-size:14px;" }, "Audit findings"),
+    el("div", { style: "font-size:12px; color:var(--muted-3);" }, visible.length + " shown · " + findings.length + " audited")));
+
+  const chips = el("div", { style: "display:flex; gap:7px; flex-wrap:wrap;" });
+  const chipDefs = [
+    { key: "all", label: "All" },
+    { key: "drifts", label: "Drifts" },
+    { key: "high", label: "High severity" },
+    { key: "confirmed", label: "Confirmed" },
+    { key: "splits", label: "Judge splits" },
+  ];
+  chipDefs.forEach((c) => {
+    const on = state.filter === c.key;
+    const count = findings.filter((f) => matchFilter(f, c.key)).length;
+    chips.appendChild(el("button", {
+      onclick: () => { state.filter = c.key; render(); },
+      style: "padding:6px 11px; border-radius:18px; font-size:12px; font-weight:600; cursor:pointer; transition:.12s; " +
+             "border:1px solid " + (on ? "var(--indigo)" : "#e2e5ea") + "; " +
+             "background:" + (on ? "var(--indigo)" : "#fff") + "; " +
+             "color:" + (on ? "#fff" : "var(--muted-2)") + ";",
+    }, c.label + " ", el("span", { style: "opacity:.6;" }, String(count))));
+  });
+  head.appendChild(chips);
+  wrap.appendChild(head);
+
+  // list
+  const list = el("div", { style: "flex:1; overflow-y:auto; padding:12px 16px 40px;" });
+  if (!visible.length) {
+    list.appendChild(el("div", { style: "padding:24px 4px; color:var(--muted-3); font-size:13px;" },
+      "No findings match this filter."));
+  }
+  visible.forEach((f) => {
+    const selected = f.id === state.selectedId;
+    const sc = STATUS[f.status] || STATUS.unsupported;
+    const card = el("div", {
+      class: "rise",
+      onclick: () => { state.selectedId = f.id; state.tab = "evidence"; render(); },
+      style: "position:relative; cursor:pointer; padding:12px 14px 12px 18px; margin-bottom:9px; border-radius:12px; " +
+             "background:#fff; transition:.12s; " +
+             "border:1px solid " + (selected ? "var(--indigo)" : "var(--line)") + "; " +
+             "box-shadow:" + (selected ? "0 0 0 3px rgba(79,70,229,.14), 0 2px 8px rgba(20,24,31,.06)" : "0 1px 2px rgba(20,24,31,.04)") + ";",
+    });
+    card.appendChild(el("div", { style: "position:absolute; left:0; top:0; bottom:0; width:4px; background:" + sc.c + "; border-radius:12px 0 0 12px;" }));
+    const badges = el("div", { style: "display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:8px;" });
+    badges.appendChild(statusPill(f));
+    badges.appendChild(sourcePill(f.evidenceSource));
+    badges.appendChild(sevPill(f.sevVerdict || f.severity));
+    if (f.escalated) badges.appendChild(verdictPill(f));
+    if (f.disagreement) badges.appendChild(splitPill());
+    card.appendChild(badges);
+    card.appendChild(el("div", { style: "font-size:13.5px; font-weight:500; line-height:1.4; color:var(--ink);" }, f.claim));
+    card.appendChild(el("div", {
+      style: "font-size:12px; line-height:1.45; color:var(--muted-3); margin-top:5px; " +
+             "display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;",
+    }, f.evidence || ""));
+    list.appendChild(card);
+  });
+  wrap.appendChild(list);
+  return wrap;
+}
+
+function renderEvidencePanel(p, findings, traps) {
+  const wrap = el("div", { style: "display:flex; flex-direction:column; min-height:0; background:var(--card);" });
+
+  // tabs
+  const tabs = el("div", { style: "display:flex; gap:4px; padding:10px 16px; border-bottom:1px solid var(--line-2); flex:none; flex-wrap:wrap;" });
+  const tabDefs = [
+    { k: "evidence", l: "Evidence trace" },
+    { k: "transcript", l: "Transcript" },
+    { k: "note", l: p.note_provided ? "Note (provided)" : "Note" },
+  ];
+  if (traps.length) tabDefs.push({ k: "traps", l: "Planted traps (" + traps.length + ")" });
+  tabDefs.forEach((t) => {
+    const on = state.tab === t.k;
+    tabs.appendChild(el("button", {
+      onclick: () => { state.tab = t.k; render(); afterScroll(); },
+      style: "padding:8px 14px; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; transition:.12s; border:none; " +
+             "background:" + (on ? "var(--indigo-tint)" : "transparent") + "; " +
+             "color:" + (on ? "var(--indigo-dk)" : "var(--muted-3)") + ";",
+    }, t.l));
+  });
+  wrap.appendChild(tabs);
+
+  const scroll = el("div", { id: "dw-ev-scroll", style: "flex:1; overflow-y:auto;" });
+  wrap.appendChild(scroll);
+
+  const sel = findings.find((f) => f.id === state.selectedId) || null;
+
+  if (state.tab === "traps") scroll.appendChild(renderTrapsTab(traps));
+  else if (state.tab === "transcript") scroll.appendChild(renderTranscriptTab(p, sel));
+  else if (state.tab === "note") scroll.appendChild(renderNoteTab(p, sel));
+  else if (!sel) scroll.appendChild(renderNoSelection());
+  else scroll.appendChild(renderEvidenceTab(p, sel));
+
+  return wrap;
+}
+
+function renderNoSelection() {
+  return el("div", {
+    style: "flex:1; min-height:400px; display:flex; flex-direction:column; align-items:center; justify-content:center; " +
+           "text-align:center; padding:40px; color:var(--muted-4);",
+  },
+    el("div", { style: "width:46px; height:46px; border-radius:12px; background:var(--line-3); display:flex; align-items:center; justify-content:center; margin-bottom:16px; font-size:22px;" }, "◎"),
+    el("div", { style: "font-size:15px; font-weight:600; color:var(--muted-2); margin-bottom:6px;" }, "Trace any finding to the source"),
+    el("div", { style: "font-size:13px; line-height:1.5; max-width:260px;" },
+      "Select a finding on the left to see what the note asserted, what the transcript actually said, and how the three judges voted."));
+}
+
+function renderEvidenceTab(p, f) {
+  const sc = STATUS[f.status] || STATUS.unsupported;
+  const box = el("div", { style: "padding:20px;" });
+
+  const badges = el("div", { style: "display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:10px;" });
+  badges.appendChild(statusPill(f));
+  badges.appendChild(sourcePill(f.evidenceSource));
+  badges.appendChild(sevPill(f.sevVerdict || f.severity));
+  box.appendChild(badges);
+
+  box.appendChild(el("div", { style: "font-size:16px; font-weight:600; line-height:1.35; margin-bottom:18px;" }, f.claim));
+
+  // note asserts -> transcript says
+  const chain = el("div", { style: "display:flex; flex-direction:column; margin-bottom:20px;" });
+  chain.appendChild(el("div", {
+    style: "border:1px solid var(--line); border-radius:12px 12px 0 0; padding:13px 14px; background:var(--field);",
+  },
+    el("div", { style: "font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted-3); margin-bottom:6px;" }, "The note asserts"),
+    el("div", { class: "mono", style: "font-size:13.5px; line-height:1.5; color:var(--ink);" }, f.claim)));
+  chain.appendChild(el("div", { style: "display:flex; align-items:center; justify-content:center; height:0; position:relative; z-index:1;" },
+    el("div", { style: "width:30px; height:30px; border-radius:50%; background:#fff; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted-3); font-size:15px;" }, "↓")));
+  const hasEv = f.evidenceSource && f.evidenceSource !== "neither" && f.evidence;
+  const evLabel = evidenceLabel(f.evidenceSource);
+  chain.appendChild(el("div", {
+    style: "border:1px solid " + sc.c + "; border-radius:0 0 12px 12px; padding:13px 14px; background:" + sc.t + ";",
+  },
+    el("div", { style: "font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:" + sc.c + "; margin-bottom:6px;" }, evLabel),
+    el("div", { style: "font-size:13.5px; line-height:1.5; color:var(--ink);" }, hasEv ? f.evidence : (f.evidence || "No supporting basis found in the transcript or chart."))));
+  box.appendChild(chain);
+
+  // transcript context
+  const quote = extractQuote(f.evidence);
+  const turns = parseTranscript(p.transcript || "");
+  const ctxIdx = quote ? turns.findIndex((t) => t.text.toLowerCase().includes(quote.toLowerCase())) : -1;
+  if (ctxIdx >= 0) {
+    box.appendChild(el("div", { style: "font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted-3); margin-bottom:8px;" }, "In the transcript"));
+    const ctxBox = el("div", { style: "border:1px solid var(--line-2); border-radius:12px; overflow:hidden; margin-bottom:22px;" });
+    const lo = Math.max(0, ctxIdx - 1), hi = Math.min(turns.length - 1, ctxIdx + 1);
+    for (let i = lo; i <= hi; i++) {
+      ctxBox.appendChild(turnRow(turns[i], i === ctxIdx ? quote : null, i === ctxIdx));
+    }
+    box.appendChild(ctxBox);
+  }
+
+  // judges
+  if (f.escalated) {
+    const jhead = el("div", { style: "display:flex; align-items:center; gap:8px; margin-bottom:12px;" });
+    jhead.appendChild(el("div", { style: "font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted-3);" }, "Judge ensemble"));
+    jhead.appendChild(el("div", { style: "flex:1; height:1px; background:var(--line-2);" }));
+    jhead.appendChild(pill(f.disagreement ? "split" : (f.consensus || ""), { color: "#fff", bg: f.disagreement ? VERDICT.split : (VERDICT[f.consensus] || VERDICT.reject) }));
+    jhead.appendChild(el("div", { class: "mono", style: "font-size:11px; color:var(--muted-3);" }, f.confirm + " confirm / " + f.reject + " reject"));
+    box.appendChild(jhead);
+
+    if (f.disagreement) {
+      box.appendChild(el("div", {
+        style: "font-size:12px; line-height:1.5; color:#b23b3b; background:#fbeaea; border:1px solid #f3d0d0; " +
+               "border-radius:10px; padding:10px 12px; margin-bottom:14px;",
+      }, "⚠ The judges split on this one — the disagreement is surfaced, never averaged away."));
+    }
+
+    const votes = el("div", { style: "display:flex; flex-direction:column; gap:10px;" });
+    (f.votes || []).forEach((v) => {
+      const vc = VERDICT[v.verdict] || VERDICT.reject;
+      votes.appendChild(el("div", { style: "border:1px solid var(--line-2); border-radius:11px; padding:12px 13px;" },
+        el("div", { style: "display:flex; align-items:center; gap:8px; margin-bottom:6px;" },
+          el("span", { style: "width:8px; height:8px; border-radius:50%; background:" + vc + "; flex:none;" }),
+          el("span", { class: "mono", style: "font-size:12px; font-weight:600; color:var(--muted);" }, v.judge),
+          el("span", { style: "margin-left:auto; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:" + vc + ";" }, (v.verdict || "") + " · " + (v.severity || ""))),
+        el("div", { style: "font-size:12.5px; line-height:1.55; color:var(--muted);" }, v.rationale || "")));
+    });
+    box.appendChild(votes);
+  } else {
+    box.appendChild(el("div", {
+      style: "font-size:12.5px; line-height:1.5; color:var(--muted-3); background:var(--field); " +
+             "border:1px solid var(--line-2); border-radius:10px; padding:12px 13px;",
+    }, "This finding was not escalated to the judge ensemble."));
+  }
+
+  return box;
+}
+
+function evidenceLabel(src) {
+  switch (src) {
+    case "transcript": return "The transcript says";
+    case "fhir": return "The chart (FHIR) shows";
+    case "both": return "Transcript & chart show";
+    case "neither": return "No basis in transcript or chart";
+    default: return "The transcript says";
+  }
+}
+
+function turnRow(t, highlightNeedle, anchor) {
+  const role = speakerRole(t.speaker);
+  const tagColor = role === "dr" ? "#4f46e5" : role === "pt" ? "#0f766e" : "#8a94a3";
+  const bg = anchor ? "#fffaf0" : "#fff";
+  const border = anchor ? "#f0d79a" : "transparent";
+  return el("div", {
+    "data-anchor": anchor ? "true" : "false",
+    style: "padding:11px 13px; border-bottom:1px solid var(--line-3); display:flex; gap:11px; background:" + bg + "; " +
+           (anchor ? "box-shadow:inset 3px 0 0 " + border + ";" : ""),
+  },
+    el("span", { class: "mono", style: "font-size:10px; font-weight:700; color:" + tagColor + "; flex:none; padding-top:2px;" }, (t.speaker || "•").toUpperCase().slice(0, 6)),
+    el("div", { style: "font-size:13px; line-height:1.55; color:var(--ink-2);" }, highlighted(t.text, highlightNeedle)));
+}
+
+function renderTranscriptTab(p, sel) {
+  const box = el("div", { style: "padding:16px 18px 40px;" });
+  const turns = parseTranscript(p.transcript || "");
+  if (!turns.length) {
+    box.appendChild(el("div", { style: "color:var(--muted-3); font-size:13px;" }, "No transcript available."));
+    return box;
+  }
+  const quote = sel ? extractQuote(sel.evidence) : null;
+  const anchorIdx = quote ? turns.findIndex((t) => t.text.toLowerCase().includes(quote.toLowerCase())) : -1;
+  turns.forEach((t, i) => {
+    const isAnchor = i === anchorIdx;
+    const role = speakerRole(t.speaker);
+    const tagColor = role === "dr" ? "#4f46e5" : role === "pt" ? "#0f766e" : "#8a94a3";
+    box.appendChild(el("div", {
+      "data-anchor": isAnchor ? "true" : "false",
+      style: "padding:9px 12px; margin-bottom:4px; border-radius:9px; display:flex; gap:11px; " +
+             "background:" + (isAnchor ? "#fffaf0" : "#fff") + "; border:1px solid " + (isAnchor ? "#f0d79a" : "transparent") + ";",
+    },
+      el("span", { class: "mono", style: "font-size:10px; font-weight:700; color:" + tagColor + "; flex:none; padding-top:2px;" }, (t.speaker || "•").toUpperCase().slice(0, 6)),
+      el("div", { style: "font-size:13px; line-height:1.55; color:var(--ink-2);" }, highlighted(t.text, isAnchor ? quote : null))));
+  });
+  afterScroll();
+  return box;
+}
+
+function renderNoteTab(p, sel) {
+  const box = el("div", { style: "padding:18px 20px 40px;" });
+  box.appendChild(el("div", { class: "mono", style: "font-size:11px; color:var(--muted-3); margin-bottom:12px;" },
+    p.note_provided ? "SOAP note — supplied with the case, audited as-is" : "SOAP note — system under test"));
+  const needle = sel ? sel.claim : null;
+  box.appendChild(el("div", {
+    "data-note": "1",
+    style: "font-size:13px; line-height:1.7; color:var(--ink-2); white-space:pre-wrap;",
+  }, highlighted(p.note || "", noteNeedle(p.note, needle))));
+  afterScroll();
+  return box;
+}
+// only highlight in the note if the claim text actually appears verbatim
+function noteNeedle(note, claim) {
+  if (!note || !claim) return null;
+  return note.toLowerCase().includes(claim.toLowerCase()) ? claim : null;
+}
+
+function renderTrapsTab(traps) {
+  const box = el("div", { style: "padding:18px 20px 40px;" });
+  box.appendChild(el("div", { style: "font-size:13px; color:var(--muted); margin-bottom:14px; line-height:1.5;" },
+    "Ground-truth traps planted in this synthetic case. Compare them against what the harness flagged on the left."));
+  traps.forEach((t) => {
+    box.appendChild(el("div", {
+      style: "border:1px solid var(--line-2); border-left:3px solid var(--indigo); border-radius:10px; padding:13px 14px; margin-bottom:10px;",
+    },
+      el("div", { style: "font-weight:700; font-size:13px; color:var(--indigo-dk); margin-bottom:5px;" }, t.trap_type || "trap"),
+      el("div", { style: "font-size:13px; line-height:1.5; color:var(--ink-2); margin-bottom:8px;" }, t.description || ""),
+      el("div", { style: "font-size:12px; line-height:1.5; color:var(--muted-3);" },
+        el("span", { style: "font-weight:600; text-transform:uppercase; letter-spacing:.04em; font-size:10.5px;" }, "Expected note behavior: "),
+        t.expected_note_behavior || "")));
+  });
+  return box;
+}
+
+// scroll the evidence pane so the highlighted anchor is visible
+function afterScroll() {
+  requestAnimationFrame(() => {
+    const cont = $("dw-ev-scroll");
+    if (!cont) return;
+    const anchor = cont.querySelector('[data-anchor="true"]') || cont.querySelector("mark.dw");
+    if (anchor) cont.scrollTop = Math.max(0, anchor.offsetTop - 90);
+  });
+}
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+function pickDefault(findings) {
+  const ordered = orderFindings(findings);
+  return ordered.length ? ordered[0].id : null;
+}
+
+function goHome() {
+  state.screen = "picker";
+  state.error = null;
+  render();
+  refreshRecent();
+}
+
+async function startRun() {
+  state.error = null;
+  const body = { max_findings: 6, mode: state.source };
+
+  if (state.source === "abridge") {
+    if (state.abridgeIndex == null && state.abridge.length) state.abridgeIndex = state.abridge[0].index;
+    if (state.abridgeIndex == null) { state.error = "No encounter selected."; render(); return; }
+    body.index = state.abridgeIndex;
+    body.regenerate_note = state.regenerate;
+  } else if (state.source === "custom") {
+    const t = ($("c-transcript") || {}).value || "";
+    const n = ($("c-note") || {}).value || "";
+    if (!t.trim()) { state.error = "Paste a transcript to audit before running."; render(); return; }
+    body.transcript = t;
+    body.note = n.trim() ? n : null;
+  }
+
+  // enter running screen with an animated stage ticker
+  state.screen = "running";
+  state.stageIndex = 0;
+  render();
+  const iv = setInterval(() => {
+    if (state.stageIndex < STAGES.length - 1) { state.stageIndex++; render(); }
+  }, 8000);
+
+  try {
+    const payload = await apiRun(body);
+    clearInterval(iv);
+    state.payload = payload;
+    state.selectedId = pickDefault(mergedFindings(payload));
+    state.filter = "all";
+    state.tab = "evidence";
+    state.screen = "results";
+    render();
+    refreshRecent();
+  } catch (e) {
+    clearInterval(iv);
+    state.error = (e && e.message) || "The run failed.";
+    state.screen = "picker";
+    render();
+  }
+}
+
+async function refreshRecent() {
+  state.recent = await apiResults();
+  if (state.screen === "picker") render();
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+async function boot() {
+  render(); // initial paint (picker with loading dropdown)
+  try {
+    state.abridge = await apiAbridge();
+    if (state.abridge.length) state.abridgeIndex = state.abridge[0].index;
+  } catch (e) {
+    state.error = (e && e.message) || "Could not load encounters.";
+  }
+  await refreshRecent();
+  render();
+}
+boot();
 </script>
 </body>
 </html>

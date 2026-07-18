@@ -72,19 +72,21 @@ def run_case(
     source: str = "custom",
     label: str = "custom case",
     ground_truth_traps: list[dict] | None = None,
+    fhir_context: dict[str, Any] | None = None,
     max_findings: int | None = 6,
 ) -> CaseResult:
     """Run one case through the full pipeline.
 
     If `note` is None we generate one with the note_generator (system under test);
     otherwise we audit the note that was handed in (e.g. Abridge's own note).
-    `max_findings` caps how many flags get escalated to the 3-judge ensemble.
+    `fhir_context` is the structured chart data - the auditor's second source of
+    ground truth. `max_findings` caps how many flags escalate to the 3 judges.
     """
     note_provided = note is not None
     if note is None:
         note = generate_note(transcript)
 
-    all_findings = audit(transcript, note)
+    all_findings = audit(transcript, note, fhir_context=fhir_context)
     problems = flagged(all_findings)
     judged = judge_findings(transcript, note, problems, max_findings=max_findings)
 
@@ -143,6 +145,7 @@ def run_abridge(
                 note=None if regenerate_note else c.note,
                 source="abridge",
                 label=f"[{idx}] {c.visit_title}",
+                fhir_context=c.fhir_context,
                 max_findings=max_findings,
             )
         )
