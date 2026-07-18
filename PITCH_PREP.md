@@ -268,9 +268,12 @@ Answers are written to be said out loud in ~15–20 seconds.
 
 ### The rules question (be ready, it's a DQ trap)
 **Q: What did you build today vs. before?**
-> [Answer truthfully and specifically — name the components built during the event.
-> If anything is scaffolding from before, say so plainly. See README's "What we
-> built at the hackathon" section and make sure it's accurate to your timeline.]
+> All of it. We created the repository *after* the hackathon began — there's no
+> pre-existing product underneath. Every component is original work from today:
+> the 5-stage pipeline (generator, note-writer, auditor, 3-judge ensemble,
+> self-scorer), the three-source FHIR grounding, the evidence-authority model,
+> the harm statements, and the web app. The commit history matches the event
+> timeline — you can check it. Nothing was pre-built or copied in.
 
 **Q: Is the repo public?**
 > Yes. [Confirm before judging.]
