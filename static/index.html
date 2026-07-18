@@ -3,35 +3,95 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Veritas Charting — clinical note drift harness</title>
+<title>Veritas Charting — clinical note drift auditing</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M12%202.2%204.5%205.4V11.2C4.5%2016.1%207.8%2019.9%2012%2021.8%2016.2%2019.9%2019.5%2016.1%2019.5%2011.2V5.4Z'%20fill='%231a6fc4'/%3E%3Cpath%20d='M6.5%2012.2H9.2L10.4%209.2%2012.4%2015%2013.9%2010.8%2014.7%2012.2H17.5'%20fill='none'%20stroke='white'%20stroke-width='1.7'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E" />
+<script>
+  /* apply saved / preferred theme before first paint to avoid a flash */
+  (function () {
+    try {
+      var t = localStorage.getItem("driftwatch-theme");
+      if (t !== "light" && t !== "dark") {
+        t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script>
 <style>
-  /* ---- design tokens (Veritas Charting) ---- */
+  /* ---- design tokens (Veritas Charting — medical blues) ---- */
   :root {
     --font-display: 'Space Grotesk', 'Segoe UI', system-ui, -apple-system, sans-serif;
     --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
 
-    --bg: #f6f7f9;
-    --ink: #14181f;
-    --ink-2: #2a323e;
-    --muted: #4a5262;
-    --muted-2: #6b7482;
-    --muted-3: #8a94a3;
-    --muted-4: #a1a9b5;
+    /* neutrals — clean clinical blue-grays */
+    --bg: #eef3f9;
+    --ink: #0d1b2a;
+    --ink-2: #223342;
+    --muted: #46586b;
+    --muted-2: #647688;
+    --muted-3: #8595a6;
+    --muted-4: #a6b3c2;
 
-    --indigo: #4f46e5;
-    --indigo-hi: #4338ca;
-    --indigo-dk: #3730a3;
-    --indigo-tint: #eef1fe;
+    /* brand — medical azure / navy (names kept as --indigo* for compatibility) */
+    --indigo: #1a6fc4;
+    --indigo-hi: #135aa6;
+    --indigo-dk: #0c477f;
+    --indigo-tint: #e6f0fb;
+    --teal: #0f766e;
 
-    --line: #e7e9ee;
-    --line-2: #eef0f3;
-    --line-3: #f2f3f6;
-    --card: #fff;
-    --field: #fbfbfc;
+    --line: #e2e8f0;
+    --line-2: #eaeff5;
+    --line-3: #f1f5f9;
+    --line-strong: #d4deea;
+    --hover: #eef3f9;
+    --card: #ffffff;
+    --field: #f5f8fc;
 
     --ok: #12a150;
+    --ok-tint: #e7f6ee;
     --hl: #ffe9a6;
+    --anchor-bg: #fffaf0;
+    --anchor-border: #f0d79a;
+
+    --sk-base: #e4eaf1;
+    --sk-hi: #f3f7fb;
+    color-scheme: light;
+  }
+  [data-theme="dark"] {
+    --bg: #0a121c;
+    --ink: #e9eef5;
+    --ink-2: #ccd7e3;
+    --muted: #9db0c3;
+    --muted-2: #8496a9;
+    --muted-3: #6a7d91;
+    --muted-4: #55697d;
+
+    --indigo: #4b9bea;
+    --indigo-hi: #6cb0f0;
+    --indigo-dk: #bfdcf7;
+    --indigo-tint: #14304c;
+    --teal: #4cc5ba;
+
+    --line: #24303e;
+    --line-2: #1c2733;
+    --line-3: #16202b;
+    --line-strong: #33414f;
+    --hover: #18232f;
+    --card: #121d29;
+    --field: #0f1823;
+
+    --ok: #2bbd7a;
+    --ok-tint: #10241b;
+    --hl: #5c4a15;
+    --anchor-bg: #2a2410;
+    --anchor-border: #5c4a15;
+
+    --sk-base: #1a2531;
+    --sk-hi: #243243;
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
@@ -42,25 +102,27 @@
   }
   button, select, textarea, input { font-family: inherit; }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-thumb { background: #d7dbe2; border-radius: 8px; border: 2px solid var(--bg); }
-  ::-webkit-scrollbar-thumb:hover { background: #c3c9d3; }
+  ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 8px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted-4); }
   select:focus, textarea:focus, button:focus-visible, input:focus-visible {
     outline: 2px solid var(--indigo); outline-offset: 1px;
   }
   @keyframes dwspin { to { transform: rotate(360deg); } }
   @keyframes dwrise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes dwshimmer { 0% { background-position: -450px 0; } 100% { background-position: 450px 0; } }
+  @keyframes dwpulse { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
 
   .mono { font-family: var(--font-mono); }
   .display { font-family: var(--font-display); }
   .rise { animation: dwrise .2s ease; }
   .spinner {
     width: 16px; height: 16px; border-radius: 50%;
-    border: 2px solid #dfe2e8; border-top-color: var(--indigo);
+    border: 2px solid var(--line-strong); border-top-color: var(--indigo);
     animation: dwspin .7s linear infinite;
   }
   .btn-primary {
     border: none; border-radius: 11px; background: var(--indigo); color: #fff;
-    font-weight: 600; cursor: pointer; box-shadow: 0 4px 14px rgba(79,70,229,.3);
+    font-weight: 600; cursor: pointer; box-shadow: 0 4px 14px rgba(26,111,196,.32);
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   }
   .btn-primary:hover { background: var(--indigo-hi); }
@@ -69,12 +131,32 @@
     background: var(--hl); color: var(--ink); border-radius: 3px; padding: 1px 2px;
     box-shadow: 0 0 0 1px rgba(198,119,0,.25);
   }
-  .logo-badge {
-    border-radius: 9px; background: linear-gradient(140deg,#4f46e5,#6d5ef0);
-    display: flex; align-items: center; justify-content: center; flex: none;
-    box-shadow: 0 2px 8px rgba(79,70,229,.32);
+  /* brand mark — shield + pulse, inherits the accent via currentColor */
+  .dw-logo { display: inline-flex; align-items: center; justify-content: center; flex: none; color: var(--indigo); filter: drop-shadow(0 2px 5px rgba(26,111,196,.28)); }
+  [data-theme="dark"] .dw-logo { filter: drop-shadow(0 2px 6px rgba(0,0,0,.5)); }
+
+  /* light / dark theme toggle */
+  .theme-toggle {
+    width: 36px; height: 36px; border-radius: 10px; flex: none;
+    border: 1px solid var(--line-strong); background: var(--card); color: var(--muted-2);
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: .15s;
   }
-  .logo-ring { border-radius: 50%; border-style: solid; border-color: #fff; border-right-color: transparent; transform: rotate(-40deg); }
+  .theme-toggle:hover { color: var(--indigo); border-color: var(--indigo); }
+  .theme-toggle .ico-sun { display: none; }
+  [data-theme="dark"] .theme-toggle .ico-moon { display: none; }
+  [data-theme="dark"] .theme-toggle .ico-sun { display: inline-flex; }
+
+  /* shimmering skeleton placeholders shown while a run is in flight */
+  .sk {
+    background: linear-gradient(90deg, var(--sk-base) 25%, var(--sk-hi) 37%, var(--sk-base) 63%);
+    background-size: 800px 100%; border-radius: 8px;
+    animation: dwshimmer 1.4s ease-in-out infinite;
+  }
+  .sk-line { height: 11px; border-radius: 6px; }
+  .sk-card { border: 1px solid var(--line); border-radius: 12px; background: var(--card); padding: 13px 14px; }
+  @media (prefers-reduced-motion: reduce) {
+    .sk, .spinner, .rise { animation: none; }
+  }
 </style>
 </head>
 <body>
@@ -122,7 +204,7 @@ const SEV = { high: "#d64545", medium: "#c77700", low: "#8a94a3", split: "#d6454
 const VERDICT = { confirm: "#12a150", reject: "#8a94a3", split: "#d64545" };
 const SOURCE_META = {
   transcript: { label: "transcript", c: "#0f766e", t: "#e6f4f1" },
-  fhir:       { label: "FHIR chart", c: "#4f46e5", t: "#eef1fe" },
+  fhir:       { label: "FHIR chart", c: "#155fb0", t: "#e6f0fb" },
   both:       { label: "transcript + FHIR", c: "#8256d0", t: "#f2ecfb" },
   neither:    { label: "no source", c: "#8a94a3", t: "#f2f3f6" },
 };
@@ -329,11 +411,38 @@ function render() {
 }
 
 /* ---------------- header logo ---------------- */
+// Shield-with-pulse mark: trust (shield) + clinical signal integrity (ECG line).
+// Monochrome — the shield inherits the accent via currentColor / --indigo.
 function logo(size) {
-  const inner = Math.round(size * 0.38);
-  return el("div", { class: "logo-badge", style: "width:" + size + "px; height:" + size + "px;" },
-    el("div", { class: "logo-ring", style: "width:" + inner + "px; height:" + inner + "px; border-width:" + Math.max(2, Math.round(size * 0.09)) + "px;" })
-  );
+  const s = el("span", { class: "dw-logo", style: "width:" + size + "px; height:" + size + "px;" });
+  s.innerHTML =
+    "<svg viewBox='0 0 24 24' width='" + size + "' height='" + size + "' fill='none' aria-hidden='true' focusable='false'>" +
+      "<path d='M12 2.2 4.5 5.4V11.2C4.5 16.1 7.8 19.9 12 21.8 16.2 19.9 19.5 16.1 19.5 11.2V5.4Z' fill='currentColor'/>" +
+      "<path d='M6.5 12.4H9.2L10.4 9.3 12.4 15.1 13.9 10.9 14.7 12.4H17.5' fill='none' stroke='#ffffff' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/>" +
+    "</svg>";
+  return s;
+}
+
+/* ---------------- light / dark theme toggle ---------------- */
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("driftwatch-theme", next); } catch (e) {}
+}
+function themeToggle() {
+  const b = el("button", {
+    class: "theme-toggle", type: "button",
+    title: "Toggle light / dark theme", "aria-label": "Toggle light and dark theme",
+    onclick: toggleTheme,
+  });
+  b.innerHTML =
+    "<svg class='ico-moon' viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>" +
+      "<path d='M21 12.6A8.4 8.4 0 1 1 11.4 3 6.6 6.6 0 0 0 21 12.6Z'/></svg>" +
+    "<svg class='ico-sun' viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>" +
+      "<circle cx='12' cy='12' r='4'/>" +
+      "<path d='M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'/></svg>";
+  return b;
 }
 
 /* ============================================================
@@ -351,7 +460,8 @@ function renderPicker() {
     el("div", { class: "mono", style: "margin-left:auto; font-size:12px; color:var(--muted-2); display:flex; gap:14px; align-items:center;" },
       el("span", null, "model · claude"),
       el("span", { style: "width:6px; height:6px; border-radius:50%; background:#12a150; box-shadow:0 0 0 3px rgba(18,161,80,.16);" })
-    )
+    ),
+    themeToggle()
   ));
 
   // hero
@@ -367,7 +477,7 @@ function renderPicker() {
   }, "We'll catch what you can't see,"));
   hero.appendChild(el("p", {
     style: "font-size:16px; line-height:1.6; color:var(--muted); margin:0; max-width:620px;",
-  }, "A garbled note is obvious. A plausible one that hardens a hedged “I don’t think so” into a clean “denies,” or asserts a stopped medication, is the dangerous failure. Veritas Charting traces every claim in a generated note back to what was actually said — and to the structured chart."));
+  }, "Gross AI errors are instantly caught. The critical risk is semantic drift: when an ambient scribe turns a soft \"I don't think so\" into a rigid \"denies,\" or falsely asserts a stopped medication. Veritas is an adversarial harness built to intercept these subtle hallucinations. We audit clinical documentation by anchoring every generated text string to its precise origin in the audio transcript and EHR data."));
   page.appendChild(hero);
 
   // error banner
@@ -413,10 +523,10 @@ function renderAuditCard() {
     srcGrid.appendChild(el("button", {
       onclick: () => { state.source = s.k; state.error = null; render(); },
       style: "text-align:left; padding:11px 12px; border-radius:11px; cursor:pointer; transition:.12s; " +
-             "border:1px solid " + (on ? "var(--indigo)" : "#e2e5ea") + "; " +
-             "background:" + (on ? "var(--indigo-tint)" : "#fff") + "; " +
+             "border:1px solid " + (on ? "var(--indigo)" : "var(--line-strong)") + "; " +
+             "background:" + (on ? "var(--indigo-tint)" : "var(--card)") + "; " +
              "color:" + (on ? "var(--indigo-dk)" : "var(--muted)") + "; " +
-             "box-shadow:" + (on ? "0 1px 4px rgba(79,70,229,.14)" : "none") + ";",
+             "box-shadow:" + (on ? "0 1px 4px rgba(26,111,196,.16)" : "none") + ";",
     }, el("div", { style: "font-weight:600; font-size:13px;" }, s.label),
        el("div", { style: "font-size:11px; margin-top:2px; opacity:.72;" }, s.sub)));
   });
@@ -427,7 +537,7 @@ function renderAuditCard() {
     body.appendChild(sectionLabel("Encounter"));
     const sel = el("select", {
       onchange: (e) => { state.abridgeIndex = parseInt(e.target.value, 10); },
-      style: "width:100%; padding:11px 12px; border:1px solid #dfe2e8; border-radius:10px; " +
+      style: "width:100%; padding:11px 12px; border:1px solid var(--line-strong); border-radius:10px; " +
              "background:var(--field); font-size:13.5px; color:var(--ink); margin-bottom:14px;",
     });
     if (!state.abridge.length) {
@@ -462,14 +572,14 @@ function renderAuditCard() {
     const ta = el("textarea", {
       id: "c-transcript", rows: "5",
       placeholder: "Paste a DR:/PT: transcript here…",
-      style: "width:100%; padding:12px; border:1px solid #dfe2e8; border-radius:10px; " +
+      style: "width:100%; padding:12px; border:1px solid var(--line-strong); border-radius:10px; " +
              "background:var(--field); font-family:var(--font-mono); font-size:12.5px; resize:vertical; color:var(--ink);",
     });
     body.appendChild(ta);
     const ta2 = el("textarea", {
       id: "c-note", rows: "3",
       placeholder: "(optional) paste a note to audit as-is — leave blank to generate one",
-      style: "width:100%; margin-top:10px; padding:12px; border:1px solid #dfe2e8; border-radius:10px; " +
+      style: "width:100%; margin-top:10px; padding:12px; border:1px solid var(--line-strong); border-radius:10px; " +
              "background:var(--field); font-family:var(--font-mono); font-size:12.5px; resize:vertical; color:var(--ink);",
     });
     body.appendChild(ta2);
@@ -513,7 +623,7 @@ function renderSideColumn() {
       recent.appendChild(el("div", {
         onclick: () => { state.payload = p; state.selectedId = pickDefault(mergedFindings(p)); state.filter = "all"; state.tab = "evidence"; state.screen = "results"; render(); },
         style: "padding:13px 20px; border-bottom:1px solid var(--line-3); cursor:pointer; display:flex; align-items:center; gap:12px;",
-        onmouseenter: (e) => { e.currentTarget.style.background = "#fafbfc"; },
+        onmouseenter: (e) => { e.currentTarget.style.background = "var(--hover)"; },
         onmouseleave: (e) => { e.currentTarget.style.background = ""; },
       },
         el("div", { style: "width:8px; height:8px; border-radius:50%; flex:none; background:" + dot + ";" }),
@@ -563,43 +673,92 @@ function sectionLabel(t) {
 /* ============================================================
    SCREEN 2 — RUNNING
    ============================================================ */
+// small skeleton building blocks (purely presentational placeholders)
+function skPill(w) {
+  return el("span", { class: "sk", style: "display:inline-block; width:" + w + "px; height:20px; border-radius:14px;" });
+}
+function skFindingCard() {
+  return el("div", { class: "sk-card", style: "margin-bottom:9px;" },
+    el("div", { style: "display:flex; gap:7px; margin-bottom:10px;" }, skPill(58), skPill(70), skPill(50)),
+    el("div", { class: "sk sk-line", style: "width:95%; height:12px; margin-bottom:7px;" }),
+    el("div", { class: "sk sk-line", style: "width:80%;" }));
+}
+function skBlock() {
+  return el("div", { class: "sk-card" },
+    el("div", { class: "sk sk-line", style: "width:40%; height:9px; margin-bottom:11px;" }),
+    el("div", { class: "sk sk-line", style: "width:100%; margin-bottom:7px;" }),
+    el("div", { class: "sk sk-line", style: "width:92%; margin-bottom:7px;" }),
+    el("div", { class: "sk sk-line", style: "width:68%;" }));
+}
+
 function renderRunning() {
-  const wrap = el("div", {
-    style: "min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px;",
-  });
-  const card = el("div", {
-    style: "width:100%; max-width:440px; background:var(--card); border:1px solid var(--line); " +
-           "border-radius:18px; box-shadow:0 20px 60px rgba(20,24,31,.12); padding:28px;",
-  });
-  card.appendChild(el("div", { class: "display", style: "font-weight:700; font-size:18px; margin-bottom:4px;" }, "Running harness"));
-  card.appendChild(el("div", { style: "font-size:13px; color:var(--muted-3); margin-bottom:22px;" }, runningLabel()));
+  const root = el("div", { style: "height:100vh; display:flex; flex-direction:column; overflow:hidden;" });
 
-  STAGES.forEach((label, i) => {
-    const done = i < state.stageIndex;
-    const active = i === state.stageIndex;
-    let icon;
-    if (done) {
-      icon = el("div", {
-        style: "width:22px; height:22px; border-radius:50%; background:#12a150; color:#fff; " +
-               "display:flex; align-items:center; justify-content:center; font-size:12px; flex:none;",
-      }, "✓");
-    } else if (active) {
-      icon = el("div", { style: "width:22px; height:22px; flex:none; display:flex; align-items:center; justify-content:center;" },
-        el("div", { class: "spinner" }));
-    } else {
-      icon = el("div", { style: "width:22px; height:22px; border-radius:50%; border:2px solid var(--line); flex:none;" });
-    }
-    const color = done ? "var(--muted)" : active ? "var(--ink)" : "var(--muted-4)";
-    card.appendChild(el("div", { style: "display:flex; align-items:center; gap:13px; padding:9px 0;" },
-      icon, el("div", { style: "font-size:14px; font-weight:500; color:" + color + ";" }, label)));
+  // header — mirrors the results-screen chrome so the transition feels continuous
+  const header = el("div", {
+    style: "display:flex; align-items:center; gap:14px; padding:12px 22px; background:var(--card); " +
+           "border-bottom:1px solid var(--line); flex:none;",
   });
+  header.appendChild(logo(28));
+  header.appendChild(el("div", { style: "min-width:0;" },
+    el("div", { class: "display", style: "font-size:14px; font-weight:700;" }, "Running harness"),
+    el("div", { class: "mono", style: "font-size:11.5px; color:var(--muted-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" }, runningLabel())));
+  header.appendChild(el("div", { style: "margin-left:auto; display:flex; align-items:center; gap:10px; flex:none;" },
+    pill("auditing", { color: "var(--indigo)", bg: "var(--indigo-tint)" }),
+    themeToggle()));
+  root.appendChild(header);
 
-  card.appendChild(el("div", {
-    style: "margin-top:14px; font-size:11.5px; color:var(--muted-4); text-align:center;",
-  }, "The full pipeline takes ~30–60s. Hang tight."));
+  // pipeline progress strip — the informative bit alongside the skeletons
+  const pct = Math.round(((state.stageIndex + 1) / STAGES.length) * 100);
+  const prog = el("div", { style: "flex:none; padding:12px 22px; background:var(--field); border-bottom:1px solid var(--line-2);" });
+  prog.appendChild(el("div", { style: "display:flex; align-items:center; gap:11px; margin-bottom:9px;" },
+    el("div", { class: "spinner" }),
+    el("div", { style: "font-size:13px; font-weight:600; color:var(--ink);" }, STAGES[state.stageIndex] || "Working…"),
+    el("div", { class: "mono", style: "margin-left:auto; font-size:11.5px; color:var(--muted-3);" },
+      "step " + (state.stageIndex + 1) + " / " + STAGES.length + " · ~30–60s")));
+  prog.appendChild(el("div", { style: "height:6px; border-radius:6px; background:var(--line-2); overflow:hidden;" },
+    el("div", { style: "height:100%; width:" + pct + "%; border-radius:6px; background:var(--indigo); transition:width .4s ease;" })));
+  root.appendChild(prog);
 
-  wrap.appendChild(card);
-  return wrap;
+  // summary-strip skeleton
+  const strip = el("div", { style: "display:flex; background:var(--card); border-bottom:1px solid var(--line); padding:0 10px; flex:none; overflow:hidden;" });
+  for (let i = 0; i < 6; i++) {
+    strip.appendChild(el("div", {
+      style: "padding:14px 20px; display:flex; flex-direction:column; gap:8px; min-width:118px; border-right:1px solid var(--line-3);",
+    },
+      el("div", { class: "sk", style: "width:38px; height:22px;" }),
+      el("div", { class: "sk sk-line", style: "width:74px; height:9px;" })));
+  }
+  root.appendChild(strip);
+
+  // body — feed skeleton | evidence skeleton, matching the results layout
+  const grid = el("div", { style: "flex:1; min-height:0; display:grid; grid-template-columns:1.15fr 1fr;" });
+
+  const feed = el("div", { style: "display:flex; flex-direction:column; min-height:0; border-right:1px solid var(--line); overflow:hidden;" });
+  feed.appendChild(el("div", {
+    style: "padding:14px 20px 12px; flex:none; background:var(--field); border-bottom:1px solid var(--line-2); display:flex; gap:7px;",
+  }, skPill(52), skPill(46), skPill(74), skPill(58)));
+  const feedList = el("div", { style: "padding:12px 16px; overflow:hidden;" });
+  for (let i = 0; i < 5; i++) feedList.appendChild(skFindingCard());
+  feed.appendChild(feedList);
+  grid.appendChild(feed);
+
+  const ev = el("div", { style: "display:flex; flex-direction:column; min-height:0; background:var(--card); overflow:hidden;" });
+  ev.appendChild(el("div", {
+    style: "padding:12px 16px; border-bottom:1px solid var(--line-2); display:flex; gap:8px; flex:none;",
+  }, skPill(90), skPill(74), skPill(60)));
+  const evBody = el("div", { style: "padding:20px;" });
+  evBody.appendChild(el("div", { style: "display:flex; gap:7px; margin-bottom:16px;" }, skPill(70), skPill(58), skPill(80)));
+  evBody.appendChild(el("div", { class: "sk sk-line", style: "width:88%; height:15px; margin-bottom:9px;" }));
+  evBody.appendChild(el("div", { class: "sk sk-line", style: "width:62%; height:15px; margin-bottom:22px;" }));
+  evBody.appendChild(skBlock());
+  evBody.appendChild(el("div", { style: "height:16px;" }));
+  evBody.appendChild(skBlock());
+  ev.appendChild(evBody);
+  grid.appendChild(ev);
+
+  root.appendChild(grid);
+  return root;
 }
 function runningLabel() {
   if (state.source === "synthetic") return "Synthetic trap case";
@@ -625,17 +784,18 @@ function renderResults() {
   });
   header.appendChild(el("button", {
     onclick: goHome,
-    style: "border:1px solid #e2e5ea; background:#fff; border-radius:9px; padding:7px 12px; " +
+    style: "border:1px solid var(--line-strong); background:var(--card); border-radius:9px; padding:7px 12px; " +
            "font-size:13px; cursor:pointer; color:var(--muted); display:flex; align-items:center; gap:6px;",
-    onmouseenter: (e) => { e.currentTarget.style.background = "var(--bg)"; },
-    onmouseleave: (e) => { e.currentTarget.style.background = "#fff"; },
+    onmouseenter: (e) => { e.currentTarget.style.background = "var(--hover)"; },
+    onmouseleave: (e) => { e.currentTarget.style.background = "var(--card)"; },
   }, "← Runs"));
   header.appendChild(logo(28));
   header.appendChild(el("div", { style: "min-width:0;" },
     el("div", { style: "font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" }, p.label || "Audit result"),
     el("div", { class: "mono", style: "font-size:11.5px; color:var(--muted-3);" }, caseMeta(p))));
-  header.appendChild(el("div", { style: "margin-left:auto; display:flex; gap:8px; flex:none;" },
-    pill(p.source || "run", { color: "var(--indigo)", bg: "var(--indigo-tint)" })));
+  header.appendChild(el("div", { style: "margin-left:auto; display:flex; align-items:center; gap:10px; flex:none;" },
+    pill(p.source || "run", { color: "var(--indigo)", bg: "var(--indigo-tint)" }),
+    themeToggle()));
   root.appendChild(header);
 
   // summary strip
@@ -691,12 +851,12 @@ function renderSummaryStrip(s, evalu) {
     const good = drifted > 0 && caught === drifted;
     strip.appendChild(el("div", {
       style: "margin-left:auto; padding:12px 22px; display:flex; align-items:center; gap:16px; " +
-             "background:" + (good ? "#e7f6ee" : "#eef1fe") + "; border-left:1px solid var(--line);",
+             "background:" + (good ? "var(--ok-tint)" : "var(--indigo-tint)") + "; border-left:1px solid var(--line);",
       title: "Of the planted traps the scribe actually drifted on, how many the harness caught. " +
              evalu.traps_faithful + " trap(s) the scribe handled faithfully are excluded.",
     },
       el("div", { style: "display:flex; flex-direction:column; gap:2px;" },
-        el("div", { class: "display", style: "font-weight:700; font-size:30px; line-height:1; color:" + (good ? "#12a150" : "var(--indigo-dk)") + ";" }, pct),
+        el("div", { class: "display", style: "font-weight:700; font-size:30px; line-height:1; color:" + (good ? "var(--ok)" : "var(--indigo-dk)") + ";" }, pct),
         el("div", { style: "font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted-2); font-weight:700;" }, "drift recall")),
       el("div", { style: "font-size:12px; line-height:1.5; color:var(--muted-2); max-width:190px;" },
         "Caught " + caught + " of " + drifted + " drifts the scribe actually made · " +
@@ -731,8 +891,8 @@ function renderFeed(findings) {
     chips.appendChild(el("button", {
       onclick: () => { state.filter = c.key; render(); },
       style: "padding:6px 11px; border-radius:18px; font-size:12px; font-weight:600; cursor:pointer; transition:.12s; " +
-             "border:1px solid " + (on ? "var(--indigo)" : "#e2e5ea") + "; " +
-             "background:" + (on ? "var(--indigo)" : "#fff") + "; " +
+             "border:1px solid " + (on ? "var(--indigo)" : "var(--line-strong)") + "; " +
+             "background:" + (on ? "var(--indigo)" : "var(--card)") + "; " +
              "color:" + (on ? "#fff" : "var(--muted-2)") + ";",
     }, c.label + " ", el("span", { style: "opacity:.6;" }, String(count))));
   });
@@ -752,9 +912,9 @@ function renderFeed(findings) {
       class: "rise",
       onclick: () => { state.selectedId = f.id; state.tab = "evidence"; render(); },
       style: "position:relative; cursor:pointer; padding:12px 14px 12px 18px; margin-bottom:9px; border-radius:12px; " +
-             "background:#fff; transition:.12s; " +
+             "background:var(--card); transition:.12s; " +
              "border:1px solid " + (selected ? "var(--indigo)" : "var(--line)") + "; " +
-             "box-shadow:" + (selected ? "0 0 0 3px rgba(79,70,229,.14), 0 2px 8px rgba(20,24,31,.06)" : "0 1px 2px rgba(20,24,31,.04)") + ";",
+             "box-shadow:" + (selected ? "0 0 0 3px rgba(26,111,196,.16), 0 2px 8px rgba(16,32,54,.08)" : "0 1px 2px rgba(16,32,54,.05)") + ";",
     });
     card.appendChild(el("div", { style: "position:absolute; left:0; top:0; bottom:0; width:4px; background:" + sc.c + "; border-radius:12px 0 0 12px;" }));
     const badges = el("div", { style: "display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:8px;" });
@@ -854,7 +1014,7 @@ function renderEvidenceTab(p, f) {
     el("div", { style: "font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted-3); margin-bottom:6px;" }, "The note asserts"),
     el("div", { class: "mono", style: "font-size:13.5px; line-height:1.5; color:var(--ink);" }, f.claim)));
   chain.appendChild(el("div", { style: "display:flex; align-items:center; justify-content:center; height:0; position:relative; z-index:1;" },
-    el("div", { style: "width:30px; height:30px; border-radius:50%; background:#fff; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted-3); font-size:15px;" }, "↓")));
+    el("div", { style: "width:30px; height:30px; border-radius:50%; background:var(--card); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted-3); font-size:15px;" }, "↓")));
   const hasEv = f.evidenceSource && f.evidenceSource !== "neither" && f.evidence;
   const evLabel = evidenceLabel(f.evidenceSource);
   chain.appendChild(el("div", {
@@ -927,9 +1087,9 @@ function evidenceLabel(src) {
 
 function turnRow(t, highlightNeedle, anchor) {
   const role = speakerRole(t.speaker);
-  const tagColor = role === "dr" ? "#4f46e5" : role === "pt" ? "#0f766e" : "#8a94a3";
-  const bg = anchor ? "#fffaf0" : "#fff";
-  const border = anchor ? "#f0d79a" : "transparent";
+  const tagColor = role === "dr" ? "var(--indigo)" : role === "pt" ? "var(--teal)" : "var(--muted-3)";
+  const bg = anchor ? "var(--anchor-bg)" : "var(--card)";
+  const border = anchor ? "var(--anchor-border)" : "transparent";
   return el("div", {
     "data-anchor": anchor ? "true" : "false",
     style: "padding:11px 13px; border-bottom:1px solid var(--line-3); display:flex; gap:11px; background:" + bg + "; " +
@@ -951,11 +1111,11 @@ function renderTranscriptTab(p, sel) {
   turns.forEach((t, i) => {
     const isAnchor = i === anchorIdx;
     const role = speakerRole(t.speaker);
-    const tagColor = role === "dr" ? "#4f46e5" : role === "pt" ? "#0f766e" : "#8a94a3";
+    const tagColor = role === "dr" ? "var(--indigo)" : role === "pt" ? "var(--teal)" : "var(--muted-3)";
     box.appendChild(el("div", {
       "data-anchor": isAnchor ? "true" : "false",
       style: "padding:9px 12px; margin-bottom:4px; border-radius:9px; display:flex; gap:11px; " +
-             "background:" + (isAnchor ? "#fffaf0" : "#fff") + "; border:1px solid " + (isAnchor ? "#f0d79a" : "transparent") + ";",
+             "background:" + (isAnchor ? "var(--anchor-bg)" : "var(--card)") + "; border:1px solid " + (isAnchor ? "var(--anchor-border)" : "transparent") + ";",
     },
       el("span", { class: "mono", style: "font-size:10px; font-weight:700; color:" + tagColor + "; flex:none; padding-top:2px;" }, (t.speaker || "•").toUpperCase().slice(0, 6)),
       el("div", { style: "font-size:13px; line-height:1.55; color:var(--ink-2);" }, highlighted(t.text, isAnchor ? quote : null))));
@@ -994,7 +1154,7 @@ function renderTrapsTab(traps, evalu) {
       pill("scribe drifted · " + (evalu.traps_drifted || 0), { color: "#c77700", bg: "#fbf1e0" }),
       pill("caught · " + (evalu.drift_caught || 0), { color: "#12a150", bg: "#e7f6ee" }),
       pill("handled faithfully · " + (evalu.traps_faithful || 0), { color: "#4a5262", bg: "#f2f3f6" }),
-      (evalu.recall != null ? pill("recall · " + Math.round(evalu.recall * 100) + "%", { color: "#fff", bg: "#4f46e5" }) : null)
+      (evalu.recall != null ? pill("recall · " + Math.round(evalu.recall * 100) + "%", { color: "#fff", bg: "var(--indigo)" }) : null)
     ));
   }
   box.appendChild(el("div", { style: "font-size:13px; color:var(--muted); margin-bottom:14px; line-height:1.5;" },

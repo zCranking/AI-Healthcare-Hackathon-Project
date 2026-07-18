@@ -26,7 +26,9 @@ class Finding:
     status: str                # supported | unsupported | contradicted | omitted
     transcript_evidence: str   # textual basis from transcript and/or FHIR, or why none exists
     evidence_source: str       # transcript | fhir | both | neither
-    severity: str              # low | medium | high
+    severity: str              # low | medium | high (effective, after evidence weighting)
+    severity_raw: str = ""     # the auditor's original severity, if evidence weighting changed it
+    weight_reason: str = ""    # why severity was escalated by evidence weighting, if it was
 
 
 _TOOL = {
@@ -238,6 +240,38 @@ def audit(
     )
     data = call_tool(_SYSTEM, user, _TOOL, max_tokens=8000)
     return [Finding(**f) for f in data["findings"]]
+
+
+def apply_evidence_weighting(findings: list[Finding]) -> list[Finding]:
+    """Adjust severity deterministically from (status, evidence_source).
+
+    The evidence-authority framework applied as code rather than prompt. A
+    CONTRADICTION is the sharpest drift signal we have: unlike an unsupported
+    claim (merely absent) or an omission (context-dependent), it means a source
+    with authority for that kind of claim directly disagrees with the note. So a
+    contradicted finding is escalated one severity level - the chart (for coded
+    facts) or the spoken record (for the patient's own body/adherence) says the
+    note is wrong. Mutates in place, but records the original severity and the
+    reason so the bump is always auditable, never silent. Unsupported and omitted
+    findings are left as the auditor scored them.
+    """
+    order = ["low", "medium", "high"]
+    for f in findings:
+        if f.status != "contradicted":
+            continue
+        if f.evidence_source in ("fhir", "both"):
+            reason = "contradicts the FHIR chart, which is authoritative for recorded facts"
+        elif f.evidence_source == "transcript":
+            reason = "contradicts what was actually said in the encounter"
+        else:  # 'neither' - not a real contradiction, leave it to the judges
+            continue
+        i = order.index(f.severity) if f.severity in order else 0
+        new = order[min(i + 1, len(order) - 1)]
+        if new != f.severity:
+            f.severity_raw = f.severity
+            f.severity = new
+            f.weight_reason = reason
+    return findings
 
 
 def flagged(findings: list[Finding]) -> list[Finding]:
