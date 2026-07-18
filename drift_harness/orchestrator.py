@@ -12,7 +12,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .auditor import Finding, audit, flagged, to_dicts as findings_to_dicts
+from .auditor import (
+    Finding,
+    apply_evidence_weighting,
+    audit,
+    flagged,
+    to_dicts as findings_to_dicts,
+)
 from .judge_ensemble import judge_findings, to_dicts as judged_to_dicts
 from .note_generator import generate_note
 from .scorer import score_case
@@ -66,6 +72,7 @@ def _summarize(all_findings: list[Finding], judged: list) -> dict[str, Any]:
         "confirmed_discrepancies": confirmed,
         "high_severity_confirmed": high_confirmed,
         "judge_disagreements": disagreements,
+        "severity_escalated": sum(1 for f in all_findings if f.weight_reason),
     }
 
 
@@ -90,6 +97,9 @@ def run_case(
         note = generate_note(transcript)
 
     all_findings = audit(transcript, note, fhir_context=fhir_context)
+    # Deterministic evidence-source weighting: escalate contradictions against an
+    # authoritative source before they're ranked/capped for the judges.
+    all_findings = apply_evidence_weighting(all_findings)
     problems = flagged(all_findings)
     judged = judge_findings(
         transcript, note, problems, max_findings=max_findings, fhir_context=fhir_context
