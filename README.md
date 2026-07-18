@@ -23,6 +23,34 @@ system under test and hunts for exactly those drifts.
 Both the auditor **and** all three judges see all three sources, so a
 chart-based contradiction is verified against the chart itself — not a paraphrase.
 
+## What we built at the hackathon
+
+Everything here was built during the Abridge Hackathon. There is no pre-existing
+product underneath — the entire agentic pipeline is original work for this event:
+
+- **A 5-stage agentic pipeline** — synthetic transcript generator (with planted
+  ground-truth traps) → SOAP note-writer (the system under test) → claim-by-claim
+  auditor → 3-judge ensemble → self-scoring evaluator. (`drift_harness/`)
+- **Three-source grounding on real Abridge data** — every claim is checked
+  against the patient's **FHIR chart** (authoritative), the **transcript**, and
+  the **after-visit summary**, loaded from the provided `synthetic-ambient-fhir-25`
+  corpus. (`dataset.py`, `auditor.py`)
+- **A claim-type evidence-authority model** — authority shifts with the claim
+  (FHIR for measured facts, clinician for judgment, patient for their own body /
+  adherence), shared by auditor and judges. (`auditor.py:EVIDENCE_AUTHORITY`)
+- **An adversarial 3-judge ensemble** — patient-safety, documentation-integrity,
+  and false-positive-skeptic lenses vote independently; **disagreement is
+  surfaced as a split, never averaged away**; each emits a *clinical-harm-if-
+  trusted* statement. (`judge_ensemble.py`)
+- **Honest self-scoring** — grades the harness against planted traps on **drift
+  recall**, counting only traps the scribe actually drifted on. (`scorer.py`)
+- **A live 3-panel web app** — FastAPI + vanilla JS to run any encounter and
+  trace each finding to its source with per-judge votes. (`main.py`, `static/`)
+
+Strict-JSON Claude tool use is used at every reasoning step (auditor, each judge,
+scorer) so the pipeline never parses free-text. No fine-tuning — reliability
+comes from architecture, so it's auditable and model-agnostic.
+
 ## Pipeline
 
 ```
