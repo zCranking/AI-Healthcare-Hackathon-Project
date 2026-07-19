@@ -1,14 +1,33 @@
 # Veritas Charting
 
-An adversarial red-team harness that catches when an AI-generated clinical note
-**silently drifts** from what was actually said in a doctor-patient transcript.
+**An adversarial red-team harness that catches when an AI-generated clinical note
+silently drifts from what was actually said in a doctor-patient visit.**
 
-Ambient scribes (Abridge and friends) turn a visit conversation into a SOAP
-note. The dangerous failure isn't a garbled note — it's a *plausible* one that
-quietly asserts a medication the patient stopped, hardens a hedged "I don't
-think so" into a clean denial, invents a repeat vital sign, or misstates the
-patient's age against their chart. This harness treats the note-writer as a
-system under test and hunts for exactly those drifts.
+[![Live demo](https://img.shields.io/badge/live%20demo-open-2f6fdb)](https://zcranking.github.io/AI-Healthcare-Hackathon-Project/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776ab)](https://www.python.org/)
+[![Model](https://img.shields.io/badge/model-claude--sonnet--4--6-8a63d2)](https://docs.claude.com/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCREENSHOT 1 — HERO  (the single most important image)
+     What to capture: the results view on the COVID-19 admission case,
+     with a HIGH-severity confirmed finding visible in the right panel.
+     Full browser width, light mode, ~1600px wide.
+     Save as: assets/hero.png
+     ══════════════════════════════════════════════════════════════ -->
+
+![Veritas Charting — flagged discrepancies traced to source](assets/hero.png)
+
+> Ambient scribes turn a visit into a SOAP note. The dangerous failure isn't a
+> garbled note — it's a **fluent, plausible** one that quietly asserts a
+> medication the patient stopped, or hardens a hedged *"I don't think so"* into
+> a clean *"denies."* This harness treats the note-writer as a system under test
+> and hunts for exactly those drifts.
+
+**[▶ Try the live demo](https://zcranking.github.io/AI-Healthcare-Hackathon-Project/)** — a real
+saved pipeline run, no API key required.
+
+## How it works
 
 **Every claim is checked against three sources**, in a strict authority order:
 
@@ -23,10 +42,21 @@ system under test and hunts for exactly those drifts.
 Both the auditor **and** all three judges see all three sources, so a
 chart-based contradiction is verified against the chart itself — not a paraphrase.
 
-## What we built at the hackathon
+<!-- ═══════════════════════════════════════════════════════════════
+     SCREENSHOT 2 — EVIDENCE TRACE
+     What to capture: ONE finding expanded, showing its evidence quote and
+     all three judge votes side by side. Ideally pick a finding where the
+     judges SPLIT — that's the differentiator no other project will have.
+     Crop tight to the card, ~1000px wide.
+     Save as: assets/judges.png
+     ══════════════════════════════════════════════════════════════ -->
 
-Everything here was built during the Abridge Hackathon. There is no pre-existing
-product underneath — the entire agentic pipeline is original work for this event:
+![Three independent judges voting on a single flagged claim](assets/judges.png)
+
+## What's in here
+
+Built during the Abridge Hackathon — the entire agentic pipeline is original
+work, with no pre-existing product underneath:
 
 - **A 5-stage agentic pipeline** — synthetic transcript generator (with planted
   ground-truth traps) → SOAP note-writer (the system under test) → claim-by-claim
@@ -117,6 +147,34 @@ In the UI, pick an **Abridge encounter**, a fresh **synthetic trap case**, or
 **paste your own** transcript, then *Run harness*. Left = transcript, middle =
 note, right = flagged discrepancies with severity color and per-judge votes.
 
+### Static demo (no API key)
+
+`static/index.html` probes for a backend at startup. With none reachable it
+falls back to **demo mode** and replays a real saved run from
+`static/demo/sample_run.json`, so the whole UI stays explorable as a plain static page.
+That's what the [live demo](https://zcranking.github.io/AI-Healthcare-Hackathon-Project/)
+serves — one HTML file plus one JSON file, no build step and no server.
+
+To publish it, point GitHub Pages at the repo root and open
+`static/index.html`, or regenerate the fixture after changing the pipeline:
+
+```bash
+python scripts/build_demo.py
+```
+
+## Repo map
+
+```
+drift_harness/     the pipeline (see the module table above)
+main.py            FastAPI app — serves the UI and /api/*
+static/index.html  the entire frontend: no build step, no external assets
+demo/              saved run replayed by the static demo
+scripts/           regenerate the demo fixture
+docs/              hackathon pitch, demo script, judging prep
+synthetic-ambient-fhir-25/   the provided Abridge corpus (synthetic)
+results/           JSON reports written by the orchestrator (gitignored)
+```
+
 ## Self-scoring: drift recall
 
 Synthetic cases ship their **planted traps** as ground truth, so the harness
@@ -138,6 +196,48 @@ recall = drifts caught / drifts the scribe actually made
 
 This shows up live in the UI (the **drift recall** tile and the annotated
 *Planted traps* tab) and in the report's `evaluation` block.
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCREENSHOT 3 — SELF-SCORING
+     What to capture: run a SYNTHETIC case, then screenshot the summary
+     tiles (drift recall) together with the "Planted traps" tab showing
+     each trap marked caught / faithful / missed.
+     This is the credibility shot — it proves the harness measures itself.
+     Save as: assets/drift-recall.png
+     ══════════════════════════════════════════════════════════════ -->
+
+![Drift recall scored against planted ground-truth traps](assets/drift-recall.png)
+
+## Performance
+
+The pipeline is latency-bound by LLM round-trips, not compute. Latency tracks
+**output** tokens, not input — a long system prompt is cheap, a long findings
+list is not.
+
+Measured on Abridge case `[1]` (COVID-19 admission), `max_findings=6`:
+
+| Phase | Calls | Time | Note |
+|-------|------:|-----:|------|
+| Audit | 1 | **79.6s** | One sequential call; emitted 64 claims, 8 flagged |
+| Judges | 18 | **8.4s** | 6 findings × 3 judges, dispatched as one parallel wave |
+| **Total** | **19** | **~88s** | |
+
+The judge ensemble dispatches every `(finding, judge)` pair into a **single
+parallel wave** rather than judging findings one after another
+(`judge_ensemble.py:judge_findings`). The votes are independent, so serializing
+across findings was pure added latency — at 18 calls this is ~8s instead of
+~51s.
+
+That leaves the **audit call as ~90% of runtime**, and its cost scales with how
+many claims it enumerates. Most of those are `supported` — they exist to show
+audit coverage (the "claims audited" tile and the *All* filter), not because
+anything downstream reads them. So there's a real tradeoff available:
+
+| Lever | Effect |
+|-------|--------|
+| `max_findings` | Caps judge calls. Cheap now that judging is parallel — raising it costs little |
+| Enumerating `supported` claims | The dominant cost. Dropping them would cut audit latency substantially at the price of the coverage view |
+| Per-call variance | Individual Claude calls vary a lot run-to-run; one slow call can add 30–60s. Measure across several runs before concluding a change helped |
 
 ## Design notes
 

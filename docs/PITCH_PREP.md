@@ -1,4 +1,4 @@
-# Driftwatch — Pitch Prep & Judging Playbook
+# Veritas Charting — Pitch Prep & Judging Playbook
 
 Everything you need to walk into first-round judging confident. Read this once
 end-to-end, then skim the **Wow factors** and **Q&A** the morning of.

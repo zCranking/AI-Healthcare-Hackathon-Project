@@ -71,6 +71,6 @@ If you only have 60 seconds, those five beats — in that order — are the vide
 ## The exact words to open and close with
 - **Open:** *"AI scribes now write the clinical note for millions of visits — and
   the dangerous failure is a fluent note that invents things that were never said.
-  We built Driftwatch to catch them."*
+  We built Veritas Charting to catch them."*
 - **Close:** *"An AI wrote the note. A panel of AIs, checking the patient's real
   FHIR chart, caught where it lied — and told us why it matters."*

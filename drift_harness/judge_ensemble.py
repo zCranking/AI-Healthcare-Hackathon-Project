@@ -40,6 +40,9 @@ _JUDGE_FRAMINGS = [
     ),
 ]
 
+# Ceiling on concurrent judge calls across the whole ensemble (see judge_findings).
+_MAX_PARALLEL_VOTES = 24
+
 _TOOL = {
     "name": "cast_vote",
     "description": "Vote on whether an auditor's flag is a genuine, clinically meaningful discrepancy.",
@@ -151,18 +154,8 @@ def _majority(values: list[str]) -> str:
     return winners[0] if len(winners) == 1 else "split"
 
 
-def judge_finding(
-    transcript: str,
-    note: str,
-    finding: Finding,
-    fhir_context: dict[str, Any] | None = None,
-) -> JudgedFinding:
-    """Run all 3 judges on one finding (in parallel) and aggregate."""
-    with ThreadPoolExecutor(max_workers=3) as pool:
-        votes = list(
-            pool.map(lambda fr: _one_vote(fr, transcript, note, finding, fhir_context), _JUDGE_FRAMINGS)
-        )
-
+def _aggregate(finding: Finding, votes: list[JudgeVote]) -> JudgedFinding:
+    """Combine one finding's 3 votes into a consensus verdict."""
     verdicts = [v.verdict for v in votes]
     confirm = verdicts.count("confirm")
     reject = verdicts.count("reject")
@@ -190,6 +183,20 @@ def judge_finding(
     )
 
 
+def judge_finding(
+    transcript: str,
+    note: str,
+    finding: Finding,
+    fhir_context: dict[str, Any] | None = None,
+) -> JudgedFinding:
+    """Run all 3 judges on one finding (in parallel) and aggregate."""
+    with ThreadPoolExecutor(max_workers=len(_JUDGE_FRAMINGS)) as pool:
+        votes = list(
+            pool.map(lambda fr: _one_vote(fr, transcript, note, finding, fhir_context), _JUDGE_FRAMINGS)
+        )
+    return _aggregate(finding, votes)
+
+
 def judge_findings(
     transcript: str,
     note: str,
@@ -203,12 +210,37 @@ def judge_findings(
     interactive endpoint snappy. We sort by auditor severity so the riskiest
     flags always get judged. `fhir_context` is the same structured chart data the
     auditor saw, so the judges verify FHIR-based flags against the chart itself.
+
+    Every (finding, judge) pair is dispatched into ONE pool rather than judging
+    findings one after another. The votes are independent, so serializing across
+    findings just added latency: 6 findings x 3 judges went from 6 sequential
+    rounds to a single parallel wave. Results are reassembled in ranked order, so
+    the output is identical to the sequential version.
     """
     order = {"high": 0, "medium": 1, "low": 2}
     ranked = sorted(findings, key=lambda f: order.get(f.severity, 3))
     if max_findings is not None:
         ranked = ranked[:max_findings]
-    return [judge_finding(transcript, note, f, fhir_context) for f in ranked]
+    if not ranked:
+        return []
+
+    jobs = [(i, fr) for i in range(len(ranked)) for fr in _JUDGE_FRAMINGS]
+    # Bounded so an uncapped max_findings can't open a socket per finding at once.
+    # 24 covers the default 6 findings x 3 judges with headroom; beyond that the
+    # pool queues rather than stampeding the API.
+    with ThreadPoolExecutor(max_workers=min(len(jobs), _MAX_PARALLEL_VOTES)) as pool:
+        votes = list(
+            pool.map(
+                lambda job: (job[0], _one_vote(job[1], transcript, note, ranked[job[0]], fhir_context)),
+                jobs,
+            )
+        )
+
+    # Regroup by finding, preserving _JUDGE_FRAMINGS order within each.
+    by_finding: dict[int, list[JudgeVote]] = {i: [] for i in range(len(ranked))}
+    for i, vote in votes:
+        by_finding[i].append(vote)
+    return [_aggregate(f, by_finding[i]) for i, f in enumerate(ranked)]
 
 
 def to_dicts(judged: list[JudgedFinding]) -> list[dict]:

@@ -160,8 +160,15 @@ _SYSTEM = (
     "disagrees and the claim is merely absent, the status is 'unsupported', not 'contradicted'.\n"
     "- 'omitted' -> the source that CONTAINS the omitted fact ('transcript', 'fhir', or 'both').\n\n"
     "Set severity by clinical risk: wrong medication or missed red-flag symptom is high; a minor "
-    "phrasing gap is low. Report supported claims too, briefly - they show coverage - but focus "
-    "your effort on the unsupported, contradicted, and omitted ones."
+    "phrasing gap is low.\n\n"
+    "BUDGET YOUR OUTPUT. Supported claims exist only to show audit coverage - nothing downstream "
+    "reads their prose. For a 'supported' claim, keep 'transcript_evidence' to a SHORT quote or "
+    "chart label (under ~15 words); do not explain, justify, or editorialize. Spend your detail "
+    "budget on the unsupported, contradicted, and omitted findings, which are the ones a human "
+    "actually reviews.\n\n"
+    "Do not pad the findings list. Only report an 'omitted' finding when the missing fact would "
+    "plausibly change clinical decision-making. Chit-chat, social small talk, and commentary about "
+    "how the conversation was conducted are NOT omissions - leave them out entirely."
 )
 
 

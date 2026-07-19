@@ -1,0 +1,1050 @@
+{
+  "_comment": "A real, unedited run of the Veritas Charting pipeline, saved so the UI is explorable as a static page with no API key. Regenerate with scripts/build_demo.py.",
+  "generated_at": "2026-07-19T04:48:57Z",
+  "model": "claude-sonnet-4-6",
+  "elapsed_seconds": 104.0,
+  "llm_calls": 19,
+  "encounters": [
+    {
+      "index": 0,
+      "visit_title": "Annual physical — preventive screening and migraine check-in",
+      "date": "2022-08-05T05:19:56-07:00"
+    },
+    {
+      "index": 1,
+      "visit_title": "Inpatient admission — COVID-19 isolation with pneumonia and hypoxemia",
+      "date": "2021-01-03T23:18:53-08:00"
+    },
+    {
+      "index": 2,
+      "visit_title": "Prenatal intake visit — initial obstetric evaluation",
+      "date": "2025-06-01T09:43:17-07:00"
+    },
+    {
+      "index": 3,
+      "visit_title": "Annual wellness examination — preventive screening and health maintenance",
+      "date": "2017-01-01T07:08:11-08:00"
+    },
+    {
+      "index": 4,
+      "visit_title": "Young adult preventive exam — prediabetes and allergy follow-up",
+      "date": "2025-05-23T09:36:27-07:00"
+    },
+    {
+      "index": 5,
+      "visit_title": "Annual check-up — post-sepsis recovery and prediabetes",
+      "date": "2024-05-18T14:33:14-07:00"
+    },
+    {
+      "index": 6,
+      "visit_title": "General adult exam — new hypertension and metabolic syndrome",
+      "date": "2026-06-18T11:39:22-07:00"
+    },
+    {
+      "index": 7,
+      "visit_title": "General exam — chronic low back pain and positive depression screen",
+      "date": "2021-04-06T02:06:07-07:00"
+    },
+    {
+      "index": 8,
+      "visit_title": "Annual general exam — prediabetes, hyperlipidemia, and knee osteoarthritis",
+      "date": "2016-08-30T06:10:44-07:00"
+    },
+    {
+      "index": 9,
+      "visit_title": "Prenatal intake visit — first trimester, newly identified anemia",
+      "date": "2024-07-22T20:20:44-07:00"
+    },
+    {
+      "index": 10,
+      "visit_title": "Annual physical — geriatric cardiometabolic follow-up",
+      "date": "2024-10-07T12:51:15-07:00"
+    },
+    {
+      "index": 11,
+      "visit_title": "Annual physical — new adult patient wellness exam",
+      "date": "2019-07-14T06:52:36-07:00"
+    },
+    {
+      "index": 12,
+      "visit_title": "General exam — hypertension treatment initiation and chronic low back pain",
+      "date": "2025-07-13T01:16:42-07:00"
+    },
+    {
+      "index": 13,
+      "visit_title": "Annual exam — psychosocial screening with safety disclosure",
+      "date": "2020-06-17T23:24:10-07:00"
+    },
+    {
+      "index": 14,
+      "visit_title": "General adult exam — preventive screening and sleep review",
+      "date": "2023-05-20T17:28:48-07:00"
+    },
+    {
+      "index": 15,
+      "visit_title": "Skilled nursing facility admission after hospitalization",
+      "date": "2019-11-20T14:42:13-08:00"
+    },
+    {
+      "index": 16,
+      "visit_title": "Initial prenatal visit — new pregnancy at 43",
+      "date": "2019-09-27T18:22:52-07:00"
+    },
+    {
+      "index": 17,
+      "visit_title": "Dental referral visit — gingival disease treatment",
+      "date": "2025-03-10T06:30:10-07:00"
+    },
+    {
+      "index": 18,
+      "visit_title": "Prenatal intake visit — first pregnancy with chronic pain",
+      "date": "2026-03-21T17:00:11-07:00"
+    },
+    {
+      "index": 19,
+      "visit_title": "SNF admission — rehabilitation and pain management",
+      "date": "2023-11-27T11:29:05-08:00"
+    },
+    {
+      "index": 20,
+      "visit_title": "Annual physical — prediabetes and psychosocial screening",
+      "date": "2019-04-22T09:07:12-07:00"
+    },
+    {
+      "index": 21,
+      "visit_title": "Hospice admission — end-stage colon cancer",
+      "date": "2022-05-18T13:18:31-07:00"
+    },
+    {
+      "index": 22,
+      "visit_title": "Hospice admission — advanced colon cancer with cardiac comorbidity",
+      "date": "2020-01-11T09:33:50-08:00"
+    },
+    {
+      "index": 23,
+      "visit_title": "Skilled nursing facility admission — diabetes stabilization and rehabilitation",
+      "date": "2021-10-15T20:07:58-07:00"
+    },
+    {
+      "index": 24,
+      "visit_title": "Annual physical — hand osteoarthritis and anxiety screening",
+      "date": "2019-07-25T07:59:19-07:00"
+    }
+  ],
+  "run": {
+    "source": "abridge",
+    "label": "[1] Inpatient admission — COVID-19 isolation with pneumonia and hypoxemia",
+    "transcript": "DR: Mrs. Runolfsson? I am Dr. Okafor, the physician who will be looking after you on this unit. I know the gown and the face shield make this feel strange — can you hear me all right through all of this?\nPT: Yes. You look like... an astronaut.\nDR: I get that a lot this winter. And you must be family?\nFAMILY: Teresa, her daughter. They let me gown up to help get her settled. She gets so short of breath that I did not want her telling the whole story alone.\nDR: I am very glad you are here, Teresa. Mrs. Runolfsson, tell me what you can in your own words, short sentences are fine, and your daughter can fill in the gaps. When did this start?\nPT: Five days. Maybe six. A cough first. Dry. Then the fever came... and stayed.\nFAMILY: It was right after the holiday she started coughing. By New Year's Eve she was feverish and stopped eating properly, and this morning she could not get from the bed to the bathroom without stopping twice to breathe. The swab they did at the urgent care came back positive for the coronavirus. They said isolate and watch her, and we watched, and it kept getting worse.\nDR: You did exactly the right thing bringing her in. We repeated the swab here in the emergency department and it is positive as well, so the diagnosis is confirmed. Mrs. Runolfsson, any chest pain or pressure? You have had a heart attack before — do you remember that feeling?\nPT: I remember it. This is not that. No pain. Just tight. Like the air is... thin.\nDR: Any coughing up blood? Leg swelling?\nPT: No. No.\nDR: Confusion, falls, fainting?\nFAMILY: No falls. She seemed a little foggy this morning, but as you can hear, she is still herself.\nPT: Foggy and sharp. Both at once.\nDR: Clearly sharp. Let me make sure the chart I have is right, because I want to know exactly who I am treating. I have high blood pressure, the heart attack we mentioned — an ST-elevation heart attack some years back — high cholesterol, metabolic syndrome, prediabetes, osteoporosis, obesity on the problem list, and scoliosis from adolescence. Anything missing?\nFAMILY: That is her. And the allergy — tree nuts. Please make sure the kitchen knows. She swelled up badly once from a walnut brownie.\nDR: Tree nut allergy, flagging it for dietary right now, and it is on her armband. Medications — I have aspirin eighty-one milligrams daily, atenolol fifty, rosuvastatin forty, and lisinopril twenty. Is that current, nothing added or stopped?\nFAMILY: That is exactly her pillbox. She never misses.\nPT: Sixty years of... discipline.\nDR: It shows. Now let me tell you what we found and what we are doing. When you arrived, your oxygen level was about eighty-seven percent — we like it above the low nineties. Your temperature was thirty-eight and a half, your heart rate was in the fifties, blood pressure one-oh-five over fifty-three. The chest x-ray we took shows pneumonia — the virus has inflamed the lungs themselves. That combination is why you are being admitted, and because of the virus it has to be an isolation room.\nPT: Isolation. So Teresa... cannot stay.\nDR: I am afraid not, and I am sorry. Once you are settled, visitors cannot come into the room. The nurses will help you two video call every day, and Teresa, I will call you personally with updates — we will pick a time that works.\nFAMILY: Evenings are best. Doctor, be honest with me. How bad is this?\nDR: Honest answer: this is serious, and I am worried enough to watch her very closely. She is eighty-one, and the heart history, blood pressure, and blood sugar issues all make this virus harder. Her latest reading a few minutes ago actually dipped further — her oxygen dropped to about seventy-six percent lying flat, her fever is climbing toward thirty-nine, and her heart rate has come up to the high eighties. So we are not waiting.\nNURSE: Sorry to interrupt — mask is ready. Mrs. Runolfsson, I am going to slip this oxygen mask over your nose and mouth. It blows air a bit forcefully, like holding your face out a car window. Breathe normally.\nPT: Cold... but better. Yes. Better.\nNURSE: Good. Sats are already coming up on the monitor. I will stay to recheck in a few minutes.\nDR: Thank you. So, the treatment plan, and I will explain each piece. First, oxygen by mask, continuously, and we adjust the flow to keep your levels safe. Second — and this one sounds odd — we are going to have you spend a good part of each day lying on your stomach. It is called prone positioning. Your lungs have more tissue toward your back, and lying face-down lets the healthier parts do more of the work. It genuinely helps with this disease.\nPT: On my stomach. With my back? The scoliosis...\nDR: A fair concern. The nurses do this many times a day and will pad and position you so your spine and hips are comfortable — pillows under the chest and pelvis, arms in a swimmer position, and we rotate on a schedule rather than leaving you any one way for too long. If a position hurts, you tell them and they adjust. It will be part of every day while you are here.\nFAMILY: How many hours a day, roughly?\nDR: As many as she comfortably tolerates each day — we will build it into the daily routine along with her nursing care, meals, and rest. Third piece: blood work, every morning. A blood count, a chemistry panel, and on a regular schedule some extras — a heart enzyme called troponin, because of her cardiac history, clotting tests, because this virus makes blood sticky, and iron studies. One needle stick a day, everything drawn together whenever we can manage it.\nPT: Every day. My poor arms.\nNURSE: We will rotate sites, and I will send our gentlest phlebotomist. Recheck here — you are holding in the low nineties on the mask. Much happier with that.\nDR: So am I. A few things from today's first labs, so you both have the full picture. Her white blood cell count is a little low — we see that with this virus. Her platelets are on the lower side as well, which we will follow. And her kidney numbers are the thing I most want to watch: the creatinine is elevated at two point seven, and the filtration estimate is quite low. Between the fever, poor intake, and the illness itself, the kidneys are under strain. The daily chemistry panel tracks exactly that, and we will be careful and deliberate with her blood pressure medicines while the kidneys recover — we will adjust based on what each morning's labs show.\nFAMILY: She barely drank anything for two days. I kept trying.\nDR: That fits with what we see, and it is fixable. Gentle fluids, monitoring, and time. Her potassium is also running slightly high, which goes along with the kidney strain — again, the daily labs guide us. Now, what should you watch for, Mrs. Runolfsson? If breathing gets harder, if the mask feels like it is not enough, if you feel chest pain or your heart racing — press the call button immediately. Do not be polite about it.\nPT: I am always polite.\nDR: Be impolite for once. That is a medical order. Teresa, questions before we move her up to the unit?\nFAMILY: The heart — could this set off another heart attack? That is my nightmare.\nDR: It is a real risk with severe infections, which is exactly why we are checking the troponin regularly and keeping her on her aspirin and heart medicines as long as the labs allow. If anything shifts, we will know quickly and act quickly. Anything else?\nFAMILY: No. Just — take care of her. She is tougher than she looks, but still.\nPT: I am... exactly as tough as I look.\nDR: I believe that completely. Here is the plan once more, simply: isolation room upstairs, oxygen by mask around the clock, tummy-lying sessions every day, blood tests every morning, the kitchen knows about the tree nuts, and I call Teresa every evening. We take this one day at a time, together.\nPT: One day at a time. Thank you, doctor.\nFAMILY: Thank you. I will wait for your call tonight.\nDR: You will have it. Let us get you comfortable upstairs, Mrs. Runolfsson.",
+    "note": "**Subjective:** Ariane Runolfsson is an 81-year-old woman admitted for isolation with disease caused by SARS-CoV-2. She reports five to six days of initially dry cough followed by persistent fever, anorexia, and progressively worsening dyspnea, now present with minimal exertion — she required rest stops walking from bed to bathroom this morning. An outpatient SARS-CoV-2 test several days ago was positive; a repeat NAA test on arrival is also positive. She describes chest tightness with breathing but explicitly denies chest pain or pressure resembling her prior myocardial infarction. Her daughter, present at admission, reports mild morning fogginess but no falls, syncope, hemoptysis, or leg swelling; the patient is conversant and oriented. Poor oral intake for two days. Past history: essential hypertension, acute ST segment elevation myocardial infarction with history of MI, hyperlipidemia, metabolic syndrome X, prediabetes, BMI 30+ obesity, osteoporosis, and adolescent idiopathic scoliosis; history of tubal ligation and past miscarriage. Allergies: tree nut (allergic disposition) — dietary flagged. Home medications confirmed with daughter: aspirin 81 mg, atenolol 50 mg, rosuvastatin calcium 40 mg, and lisinopril 20 mg daily, with good adherence. ROS otherwise negative except as above.\n\n**Objective:** Admission vitals: T 38.45 C, RR 19.28/min, HR 56.97/min, SpO2 87.18% (arterial), BP 105/53 mmHg, weight 73.3 kg. Repeat vitals with clinical deterioration: T 38.92 C, RR 24.15/min, HR 89.33/min, SpO2 75.7%, BP 97/53 mmHg. Exam: fatigued, speaking in short sentences with increased work of breathing; alert and oriented; findings consistent with pneumonia on auscultation; thoracic curvature consistent with known scoliosis; no peripheral edema. Plain chest x-ray: findings consistent with pneumonia. Initial labs: WBC 3.42 10*3/uL, hemoglobin 12.5 g/dL, hematocrit 45.39%, platelets 136.34 10*3/uL, neutrophils 1.6 10*3/uL, lymphocytes 1.07 10*3/uL; glucose 67.23 mg/dL, BUN 13.39 mg/dL, creatinine 2.66 mg/dL, GFR (MDRD) 11.1 mL/min, sodium 136.05 mmol/L, potassium 5.07 mmol/L, chloride 101.64 mmol/L, CO2 21.79 mmol/L, calcium 9.76 mg/dL, albumin 5.44 g/dL. SARS-CoV-2 RNA panel positive ×2.\n\n**Assessment and Plan:**\n\n### COVID-19 with pneumonia\n81-year-old with confirmed SARS-CoV-2 infection (two positive NAA panels) and radiographic pneumonia, admitted for isolation given hypoxemia and high-risk comorbidities.\n- Hospital admission to isolation room; no in-room visitors, daily family updates and video calls arranged.\n- Daily monitoring labs: CBC with automated differential, comprehensive metabolic panel; scheduled troponin I (high-sensitivity), PT/coagulation panel, and iron panel.\n\n### Hypoxemia and respiratory distress\nSpO2 87.18% on arrival with subsequent desaturation to 75.7%, tachypnea to 24.15/min, and fever to 38.92 C.\n- Oxygen administration by mask, continuous, titrated to saturation; ongoing daily oxygen therapy through the stay.\n- Daily prone positioning sessions as tolerated, with padding accommodations for scoliosis.\n- Escalation and call-bell instructions reviewed with patient; monitor for worsening respiratory distress.\n\n### Renal function and metabolic abnormalities\nCreatinine 2.66 mg/dL with GFR 11.1 mL/min, potassium 5.07 mmol/L, and glucose 67.23 mg/dL in the setting of fever and two days of poor intake.\n- Follow daily comprehensive metabolic panel; support hydration and oral intake.\n- Review home antihypertensives daily against renal function and potassium; adjust per lab trend.\n\n### Chronic cardiovascular disease\nHistory of STEMI, hypertension, hyperlipidemia, and metabolic syndrome; leukopenia and borderline-low platelets noted on admission CBC.\n- Continue home aspirin 81 mg, atenolol 50 mg, rosuvastatin 40 mg, lisinopril 20 mg as labs and hemodynamics allow.\n- Serial high-sensitivity troponin and coagulation monitoring per schedule; trend platelets on daily CBC.\n\n### Allergy and supportive care\nTree nut allergy flagged to dietary; allergy band placed.\n- Nut-free diet; encourage intake; daily nursing care with scheduled repositioning, rest, and fall precautions.",
+    "note_provided": true,
+    "findings": [
+      {
+        "claim": "Ariane Runolfsson is an 81-year-old woman",
+        "status": "supported",
+        "transcript_evidence": "DR: 'She is eighty-one'; birth_date 1940-05-16, encounter 2021-01-03 → age 80 years 7 months. Patient is 80, not 81.",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Five to six days of initially dry cough",
+        "status": "supported",
+        "transcript_evidence": "PT: 'Five days. Maybe six. A cough first. Dry.'",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Persistent fever",
+        "status": "supported",
+        "transcript_evidence": "FAMILY: 'By New Year's Eve she was feverish and stayed.'",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Anorexia (stopped eating properly)",
+        "status": "supported",
+        "transcript_evidence": "FAMILY: 'stopped eating properly'",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Progressively worsening dyspnea, required rest stops walking from bed to bathroom this morning",
+        "status": "supported",
+        "transcript_evidence": "FAMILY: 'could not get from the bed to the bathroom without stopping twice to breathe'",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Outpatient SARS-CoV-2 test several days ago was positive",
+        "status": "supported",
+        "transcript_evidence": "FAMILY: 'The swab they did at urgent care came back positive for the coronavirus.'",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Repeat NAA test on arrival is also positive",
+        "status": "supported",
+        "transcript_evidence": "DR: 'We repeated the swab here in the emergency department and it is positive'; FHIR: SARS-CoV-2 RNA panel DiagnosticReport.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "She describes chest tightness with breathing",
+        "status": "supported",
+        "transcript_evidence": "PT: 'No pain. Just tight. Like the air is... thin.'",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Explicitly denies chest pain or pressure resembling her prior myocardial infarction",
+        "status": "contradicted",
+        "transcript_evidence": "PT said 'This is not that. No pain' — a comparative reassurance about similarity to her prior MI, not an unqualified denial of chest pressure. The note hardened 'this is not that' (a patient self-comparison, not a clinical denial) into 'explicitly denies chest pain or pressure.' The patient simultaneously reported chest tightness, so a flat denial of chest pressure/tightness is not accurate. Patient-authority caveat: patient's self-comparison to prior MI carries little clinical weight and must not be treated as ruling out ischemia.",
+        "evidence_source": "transcript",
+        "severity": "high",
+        "severity_raw": "medium",
+        "weight_reason": "contradicts what was actually said in the encounter"
+      },
+      {
+        "claim": "Mild morning fogginess reported by daughter",
+        "status": "supported",
+        "transcript_evidence": "FAMILY: 'She seemed a little foggy this morning'",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "No falls, syncope, hemoptysis, or leg swelling",
+        "status": "supported",
+        "transcript_evidence": "DR asked; FAMILY: 'No falls'; PT: 'No. No.' (to hemoptysis/leg swelling); no syncope reported.",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Patient is conversant and oriented",
+        "status": "supported",
+        "transcript_evidence": "DR: 'Clearly sharp'; patient's dialogue confirms orientation.",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Poor oral intake for two days",
+        "status": "supported",
+        "transcript_evidence": "FAMILY: 'She barely drank anything for two days.'",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Essential hypertension on past history",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Essential hypertension (disorder)",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Acute ST segment elevation myocardial infarction with history of MI",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Acute ST segment elevation myocardial infarction (disorder); History of myocardial infarction (situation)",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Hyperlipidemia",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Hyperlipidemia (disorder); DR: 'high cholesterol'",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Metabolic syndrome X",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Metabolic syndrome X (disorder)",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Prediabetes",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Prediabetes (finding)",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "BMI 30+ obesity",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Body mass index 30+ - obesity (finding)",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Osteoporosis",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Osteoporosis (disorder)",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Adolescent idiopathic scoliosis",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Adolescent idiopathic scoliosis (disorder)",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "History of tubal ligation",
+        "status": "supported",
+        "transcript_evidence": "FHIR: History of tubal ligation (situation)",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Past miscarriage",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Past pregnancy history of miscarriage (situation)",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Tree nut allergy — dietary flagged",
+        "status": "supported",
+        "transcript_evidence": "FAMILY: 'the allergy — tree nuts'; DR: 'flagging it for dietary right now'",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Aspirin 81 mg daily",
+        "status": "supported",
+        "transcript_evidence": "FHIR: aspirin 81 MG Oral Tablet; confirmed by family.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Atenolol 50 mg daily",
+        "status": "supported",
+        "transcript_evidence": "FHIR: atenolol 50 MG Oral Tablet; confirmed by family.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Rosuvastatin calcium 40 mg daily",
+        "status": "supported",
+        "transcript_evidence": "FHIR: rosuvastatin calcium 40 MG Oral Tablet; confirmed by family.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Lisinopril 20 mg daily",
+        "status": "supported",
+        "transcript_evidence": "FHIR: lisinopril 20 MG Oral Tablet; confirmed by family.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Good medication adherence",
+        "status": "supported",
+        "transcript_evidence": "FAMILY: 'She never misses.' PT: 'Sixty years of... discipline.'",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Admission T 38.45 C",
+        "status": "supported",
+        "transcript_evidence": "DR: 'temperature was thirty-eight and a half'; FHIR: Body temperature observation recorded.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Admission RR 19.28/min",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Respiratory rate observation recorded (specific value not stated in transcript).",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Admission HR 56.97/min",
+        "status": "supported",
+        "transcript_evidence": "DR: 'heart rate was in the fifties'; FHIR: Heart rate observation recorded.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Admission SpO2 87.18% (arterial)",
+        "status": "supported",
+        "transcript_evidence": "DR: 'oxygen level was about eighty-seven percent'; FHIR: Oxygen saturation in Arterial blood observation.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Admission BP 105/53 mmHg",
+        "status": "supported",
+        "transcript_evidence": "DR: 'blood pressure one-oh-five over fifty-three'; FHIR: Blood pressure panel recorded.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Weight 73.3 kg",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Body Weight observation recorded.",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Repeat vitals SpO2 75.7%",
+        "status": "supported",
+        "transcript_evidence": "DR: 'oxygen dropped to about seventy-six percent'; FHIR: second Oxygen saturation observation recorded.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Repeat HR 89.33/min",
+        "status": "supported",
+        "transcript_evidence": "DR: 'heart rate has come up to the high eighties'; FHIR: Heart rate observation.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Repeat T 38.92 C",
+        "status": "supported",
+        "transcript_evidence": "DR: 'fever is climbing toward thirty-nine'; FHIR: Body temperature observation.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Repeat RR 24.15/min",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Respiratory rate observation (not verbally stated but recorded).",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Repeat BP 97/53 mmHg",
+        "status": "unsupported",
+        "transcript_evidence": "The transcript does not mention a repeat BP value. The FHIR chart records one Blood pressure panel observation entry in this encounter — there is no second BP observation listed. The note asserts 97/53 mmHg for the deterioration set of vitals, but neither source records this second value.",
+        "evidence_source": "neither",
+        "severity": "medium",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Fatigued, speaking in short sentences with increased work of breathing",
+        "status": "supported",
+        "transcript_evidence": "Patient's speech pattern throughout the transcript confirms short sentences; respiratory distress FHIR condition.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Alert and oriented on exam",
+        "status": "supported",
+        "transcript_evidence": "DR: 'Clearly sharp'; patient's dialogue throughout.",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Findings consistent with pneumonia on auscultation",
+        "status": "unsupported",
+        "transcript_evidence": "No auscultation findings are described anywhere in the transcript. The FHIR chart records Pneumonia as an encounter condition and a chest X-ray procedure, but contains no auscultation observation. The note asserts an exam finding that appears in neither source.",
+        "evidence_source": "neither",
+        "severity": "medium",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Thoracic curvature consistent with known scoliosis on exam",
+        "status": "unsupported",
+        "transcript_evidence": "Neither the transcript nor the FHIR chart documents any physical exam finding of thoracic curvature during this encounter. Scoliosis is on the problem list but no exam notation of curvature is recorded.",
+        "evidence_source": "neither",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "No peripheral edema on exam",
+        "status": "unsupported",
+        "transcript_evidence": "The patient denied leg swelling (PT: 'No. No.'), but the note converts this patient symptom report into a physical exam finding ('no peripheral edema'). No clinician is recorded performing or describing an edema exam in the transcript or FHIR observations.",
+        "evidence_source": "neither",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Plain chest x-ray consistent with pneumonia",
+        "status": "supported",
+        "transcript_evidence": "DR: 'The chest x-ray we took shows pneumonia'; FHIR: Plain X-ray of chest procedure, Pneumonia encounter condition.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "WBC 3.42 10*3/uL",
+        "status": "supported",
+        "transcript_evidence": "DR: 'white blood cell count is a little low'; FHIR: Leukocytes observation recorded.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Hemoglobin 12.5 g/dL",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Hemoglobin observation recorded.",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Hematocrit 45.39%",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Hematocrit observation recorded.",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Platelets 136.34 10*3/uL",
+        "status": "supported",
+        "transcript_evidence": "DR: 'platelets are on the lower side'; FHIR: Platelets observation recorded.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Neutrophils 1.6 10*3/uL",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Neutrophils observation recorded.",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Lymphocytes 1.07 10*3/uL",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Lymphocytes observation recorded.",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Glucose 67.23 mg/dL",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Glucose observation recorded.",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "BUN 13.39 mg/dL",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Urea nitrogen observation recorded.",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Creatinine 2.66 mg/dL",
+        "status": "contradicted",
+        "transcript_evidence": "DR stated 'creatinine is elevated at two point seven' (transcript). FHIR records a Creatinine observation for this encounter. The note states 2.66 mg/dL; the transcript states 2.7 mg/dL. These could reflect rounding, but the note's precision (2.66) does not match the spoken value (2.7). If 2.66 is the actual lab value, the transcript was rounding and the note is correct — however the note also mentions 'creatinine 2.7' in the Assessment, creating an internal discrepancy. See Assessment section: 'Creatinine 2.66 mg/dL' in Assessment vs. note body. Minor discrepancy between transcript-stated 2.7 and note-stated 2.66.",
+        "evidence_source": "transcript",
+        "severity": "medium",
+        "severity_raw": "low",
+        "weight_reason": "contradicts what was actually said in the encounter"
+      },
+      {
+        "claim": "GFR (MDRD) 11.1 mL/min",
+        "status": "supported",
+        "transcript_evidence": "DR: 'filtration estimate is quite low'; FHIR: GFR MDRD observation recorded.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Sodium 136.05 mmol/L",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Sodium observation recorded.",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Potassium 5.07 mmol/L",
+        "status": "supported",
+        "transcript_evidence": "DR: 'potassium is also running slightly high'; FHIR: Potassium observation recorded.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Chloride 101.64 mmol/L",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Chloride observation recorded.",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "CO2 21.79 mmol/L",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Carbon dioxide observation recorded.",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Calcium 9.76 mg/dL",
+        "status": "supported",
+        "transcript_evidence": "FHIR: Calcium observation recorded.",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Albumin 5.44 g/dL",
+        "status": "unsupported",
+        "transcript_evidence": "FHIR records an Albumin observation, but the value 5.44 g/dL is physiologically implausible — normal adult albumin is 3.4–5.4 g/dL, and 5.44 g/dL is above the normal upper limit and extremely unusual in an acutely ill elderly patient with poor intake. The transcript does not mention albumin. While the FHIR observation exists, the specific value cannot be confirmed from the transcript, and the value itself warrants clinical scrutiny. Flagged for clinical review.",
+        "evidence_source": "fhir",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Leukopenia and borderline-low platelets noted in Assessment (Chronic cardiovascular disease section)",
+        "status": "supported",
+        "transcript_evidence": "DR: 'white blood cell count is a little low'; 'platelets are on the lower side'; FHIR: WBC and platelet observations.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Prone positioning with padding accommodations for scoliosis",
+        "status": "supported",
+        "transcript_evidence": "DR: 'lying on your stomach... pillows under the chest and pelvis'; FHIR: Placing subject in prone position procedure.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Daily monitoring labs: CBC with differential, CMP, troponin I (high-sensitivity), PT/coagulation, iron panel",
+        "status": "supported",
+        "transcript_evidence": "DR: 'blood count, a chemistry panel... troponin... clotting tests... iron studies'; FHIR DiagnosticReport resources confirm all panels.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Call-bell / escalation instructions reviewed with patient",
+        "status": "supported",
+        "transcript_evidence": "DR: 'press the call button immediately. Do not be polite about it.'",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Daily family video calls and evening phone updates to daughter arranged",
+        "status": "supported",
+        "transcript_evidence": "DR: 'nurses will help you two video call every day' and 'I will call you personally with updates — evenings are best.'",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Fall precautions (plan item)",
+        "status": "unsupported",
+        "transcript_evidence": "No falls were reported (FAMILY: 'No falls') and neither the transcript nor FHIR records a fall-risk assessment or fall precaution order for this encounter. The note adds fall precautions in the plan without any basis in either source.",
+        "evidence_source": "neither",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "Patient age stated as 81",
+        "status": "contradicted",
+        "transcript_evidence": "Birth date 1940-05-16, encounter date 2021-01-03: patient is 80 years old (has not yet reached her 81st birthday in May 2021). The DR's verbal statement 'She is eighty-one' is also incorrect per the FHIR birth_date. The note should state 80 years old.",
+        "evidence_source": "fhir",
+        "severity": "medium",
+        "severity_raw": "low",
+        "weight_reason": "contradicts the FHIR chart, which is authoritative for recorded facts"
+      },
+      {
+        "claim": "OMITTED: Creatinine value stated as 2.7 in transcript vs. 2.66 in objective section — Assessment section uses 2.66 but transcript says 2.7",
+        "status": "omitted",
+        "transcript_evidence": "DR explicitly stated 'creatinine is elevated at two point seven.' The Objective section records 2.66 mg/dL. While 2.66 may be the actual lab value and the clinician rounded to 2.7, the Assessment/Plan section repeats 2.66 without acknowledging the rounding. Low clinical impact but a documentation precision issue.",
+        "evidence_source": "transcript",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "OMITTED: Specific note that iron studies (ferritin) are ordered/reviewed — noted in transcript as a scheduled test but not called out as a plan rationale",
+        "status": "omitted",
+        "transcript_evidence": "DR: 'iron studies' explicitly mentioned alongside troponin and clotting tests. FHIR: Iron panel DiagnosticReport and Ferritin observation recorded. The note's plan references iron panel in the COVID section but omits any rationale (e.g., hyperferritinemia as a COVID severity marker). Low clinical impact given panel is listed.",
+        "evidence_source": "both",
+        "severity": "low",
+        "severity_raw": "",
+        "weight_reason": ""
+      },
+      {
+        "claim": "OMITTED: Glucose 67.23 mg/dL is below normal (hypoglycemia threshold ~70 mg/dL) in a prediabetic patient with poor oral intake — not flagged or addressed in the plan",
+        "status": "omitted",
+        "transcript_evidence": "FHIR: Glucose observation 67.23 mg/dL. The note records the value in the Objective section but the Assessment/Plan does not address the low glucose, which is clinically relevant given prediabetes, poor intake, and ongoing illness. The transcript does not mention glucose, but the lab value is recorded in the FHIR encounter.",
+        "evidence_source": "fhir",
+        "severity": "medium",
+        "severity_raw": "",
+        "weight_reason": ""
+      }
+    ],
+    "judged": [
+      {
+        "finding": {
+          "claim": "Explicitly denies chest pain or pressure resembling her prior myocardial infarction",
+          "status": "contradicted",
+          "transcript_evidence": "PT said 'This is not that. No pain' — a comparative reassurance about similarity to her prior MI, not an unqualified denial of chest pressure. The note hardened 'this is not that' (a patient self-comparison, not a clinical denial) into 'explicitly denies chest pain or pressure.' The patient simultaneously reported chest tightness, so a flat denial of chest pressure/tightness is not accurate. Patient-authority caveat: patient's self-comparison to prior MI carries little clinical weight and must not be treated as ruling out ischemia.",
+          "evidence_source": "transcript",
+          "severity": "high",
+          "severity_raw": "medium",
+          "weight_reason": "contradicts what was actually said in the encounter"
+        },
+        "votes": [
+          {
+            "judge": "patient_safety",
+            "verdict": "confirm",
+            "severity": "high",
+            "rationale": "The transcript shows the patient said \"No pain. Just tight. Like the air is... thin\" — she acknowledged chest tightness while denying pain resembling her prior MI. The note conflates these into \"explicitly denies chest pain or pressure,\" which is inaccurate: the patient admitted to chest tightness (a form of pressure/discomfort), and her self-comparison (\"this is not that\") is a lay reassurance, not a clinical ruling-out of ischemia. The note's flat denial erases a documented symptom and misrepresents the patient's own report.",
+            "harm_if_trusted": "A clinician reviewing this note could dismiss chest tightness as a symptom warranting cardiac workup, potentially delaying recognition of demand ischemia or ACS in a patient with known STEMI history presenting with severe hypoxemia and hemodynamic instability."
+          },
+          {
+            "judge": "documentation_integrity",
+            "verdict": "confirm",
+            "severity": "high",
+            "rationale": "The transcript shows the patient said \"This is not that. No pain. Just tight. Like the air is... thin.\" She explicitly acknowledged chest tightness while denying pain resembling her prior MI — a patient self-comparison, not a clinical denial of chest pressure or tightness. The note's phrasing \"explicitly denies chest pain or pressure\" is doubly inaccurate: (1) she did report chest tightness, which is a form of chest pressure, and (2) her \"no pain\" statement was a comparative self-reassurance about similarity to her prior MI experience, not a clinician-assessed denial of ischemic symptoms. Patient self-comparisons to prior events carry little clinical authority for ruling out ischemia, and the note's language implies a clean, clinician-level denial that was never established.",
+            "harm_if_trusted": "A clinician reading this note could reasonably de-prioritize ischemia surveillance, underweighting the reported chest tightness as a potential anginal equivalent — particularly dangerous in a patient with known STEMI history presenting with hemodynamic instability and a subsequent HR rise to the high 80s."
+          },
+          {
+            "judge": "false_positive_skeptic",
+            "verdict": "confirm",
+            "severity": "high",
+            "rationale": "The transcript shows the patient said \"No pain. Just tight. Like the air is... thin\" — she affirmatively reported chest tightness while denying pain. The note's phrase \"explicitly denies chest pain or pressure resembling her prior myocardial infarction\" collapses tightness (which she endorsed) into a blanket denial of chest pressure, and elevates her lay self-comparison (\"this is not that\") to a clinical ruling-out of ischemia. Per authority rules, a patient's self-reassurance that her symptoms don't match a prior MI carries little clinical weight and must never be treated as ruling out ischemia — yet the note does exactly that. The distinction between tightness (reported) and pain/pressure (denied) is clinically meaningful, especially in an 81-year-old with STEMI history, fever, hypoxemia, and a troponin monitoring plan already in place.",
+            "harm_if_trusted": "A clinician reading \"explicitly denies chest pain or pressure\" may under-weight ischemic concern and deprioritize or delay troponin review, missing an acute coronary syndrome presenting as tightness in a high-risk cardiac patient."
+          }
+        ],
+        "consensus_verdict": "confirm",
+        "severity_verdict": "high",
+        "disagreement": false,
+        "confirm_votes": 3,
+        "reject_votes": 0,
+        "harm_if_trusted": "A clinician reading this note could reasonably de-prioritize ischemia surveillance, underweighting the reported chest tightness as a potential anginal equivalent — particularly dangerous in a patient with known STEMI history presenting with hemodynamic instability and a subsequent HR rise to the high 80s."
+      },
+      {
+        "finding": {
+          "claim": "Repeat BP 97/53 mmHg",
+          "status": "unsupported",
+          "transcript_evidence": "The transcript does not mention a repeat BP value. The FHIR chart records one Blood pressure panel observation entry in this encounter — there is no second BP observation listed. The note asserts 97/53 mmHg for the deterioration set of vitals, but neither source records this second value.",
+          "evidence_source": "neither",
+          "severity": "medium",
+          "severity_raw": "",
+          "weight_reason": ""
+        },
+        "votes": [
+          {
+            "judge": "patient_safety",
+            "verdict": "confirm",
+            "severity": "medium",
+            "rationale": "The repeat vital signs set in the note includes BP 97/53 mmHg, but reviewing the transcript, Dr. Okafor describes the deterioration only as: \"her oxygen dropped to about seventy-six percent lying flat, her fever is climbing toward thirty-nine, and her heart rate has come up to the high eighties\" — no repeat blood pressure figure is mentioned. The FHIR chart lists only one Blood pressure panel observation for this encounter, confirming there is no second recorded BP. The 97/53 mmHg figure is unsupported by either source and appears to have been fabricated or interpolated in the note.",
+            "harm_if_trusted": "A next clinician seeing a repeat BP of 97/53 mmHg alongside the other deterioration vitals could interpret this as hypotensive shock, potentially prompting aggressive fluid resuscitation or vasopressors that are unwarranted and hazardous given the patient's renal impairment (creatinine 2.66, GFR 11.1) and cardiac history."
+          },
+          {
+            "judge": "documentation_integrity",
+            "verdict": "confirm",
+            "severity": "medium",
+            "rationale": "The transcript never states a repeat blood pressure value during the deterioration update — Dr. Okafor reports the worsening SpO2 (dropping to ~76%), climbing fever (toward 39°C), and rising heart rate (high eighties), but no second BP figure is mentioned. The FHIR chart likewise records only a single Blood pressure panel observation for this encounter, with no second entry. The note's assertion of 97/53 mmHg for the repeat vitals set is therefore unsupported by either authoritative source; it appears to be a fabricated or hallucinated value inserted into the objective section.",
+            "harm_if_trusted": "A clinician reviewing this note could act on the fabricated 97/53 mmHg as confirmed hypotension, potentially triggering inappropriate fluid boluses or withholding of antihypertensives based on a blood pressure reading that was never actually documented or measured."
+          },
+          {
+            "judge": "false_positive_skeptic",
+            "verdict": "confirm",
+            "severity": "medium",
+            "rationale": "The transcript never mentions a repeat blood pressure value — the physician describes the deterioration set of vitals (SpO2 dropping to ~76%, fever climbing toward 39°C, heart rate rising to the high eighties) but does not state a second BP. The FHIR chart lists only one \"Blood pressure panel with all children optional\" observation for this encounter, consistent with a single BP measurement. The note's assertion of 97/53 mmHg as a \"repeat vitals with clinical deterioration\" reading has no support in either source and appears fabricated or conflated.",
+            "harm_if_trusted": "A clinician reading this note could falsely conclude hypotension was documented at 97/53 mmHg during deterioration, potentially prompting aggressive fluid resuscitation or withholding antihypertensives based on a blood pressure value that was never actually measured or recorded."
+          }
+        ],
+        "consensus_verdict": "confirm",
+        "severity_verdict": "medium",
+        "disagreement": false,
+        "confirm_votes": 3,
+        "reject_votes": 0,
+        "harm_if_trusted": "A next clinician seeing a repeat BP of 97/53 mmHg alongside the other deterioration vitals could interpret this as hypotensive shock, potentially prompting aggressive fluid resuscitation or vasopressors that are unwarranted and hazardous given the patient's renal impairment (creatinine 2.66, GFR 11.1) and cardiac history."
+      },
+      {
+        "finding": {
+          "claim": "Findings consistent with pneumonia on auscultation",
+          "status": "unsupported",
+          "transcript_evidence": "No auscultation findings are described anywhere in the transcript. The FHIR chart records Pneumonia as an encounter condition and a chest X-ray procedure, but contains no auscultation observation. The note asserts an exam finding that appears in neither source.",
+          "evidence_source": "neither",
+          "severity": "medium",
+          "severity_raw": "",
+          "weight_reason": ""
+        },
+        "votes": [
+          {
+            "judge": "patient_safety",
+            "verdict": "confirm",
+            "severity": "low",
+            "rationale": "The transcript contains no auscultation findings whatsoever — Dr. Okafor never describes listening to the lungs, and no breath sounds, crackles, or other findings are mentioned. The FHIR chart likewise contains no auscultation observation resource. The note's assertion of \"findings consistent with pneumonia on auscultation\" is fabricated or inferred without any documented basis in either source, making it an unsupported exam finding inserted into the objective record.",
+            "harm_if_trusted": "A subsequent clinician could rely on this falsely documented auscultation finding as independent clinical evidence of pneumonia severity or progression, potentially skewing reassessment decisions — for example, assuming auscultatory deterioration or improvement relative to a baseline that was never actually established."
+          },
+          {
+            "judge": "documentation_integrity",
+            "verdict": "confirm",
+            "severity": "medium",
+            "rationale": "The transcript contains no documentation of auscultation being performed or any lung sounds described — the pneumonia diagnosis is attributed solely to the chest X-ray and clinical presentation. The FHIR chart records pneumonia as an encounter condition and logs a chest X-ray procedure, but contains no auscultation observation resource. The note's assertion of \"findings consistent with pneumonia on auscultation\" is an exam finding fabricated beyond what either source supports, which is a documentation integrity failure that would not survive a medico-legal or compliance audit.",
+            "harm_if_trusted": "A subsequent clinician trusting this note might assume a full physical examination including auscultation was performed and documented, potentially foregoing their own careful lung exam or attributing a clinical change to established pneumonia findings rather than recognizing a new or evolving process (e.g., pleural effusion, new consolidation, or pneumothorax)."
+          },
+          {
+            "judge": "false_positive_skeptic",
+            "verdict": "confirm",
+            "severity": "low",
+            "rationale": "The transcript contains no documentation of auscultation being performed or any lung findings described on exam — the pneumonia diagnosis is attributed entirely to the chest x-ray and clinical picture, not to auscultation. The FHIR chart likewise records no auscultation observation; the encounter Condition of Pneumonia is supported by the chest x-ray DiagnosticReport, not by any physical exam finding. The note's assertion of \"findings consistent with pneumonia on auscultation\" is fabricated — it appears in neither source and represents an unsupported exam finding inserted into the objective section.",
+            "harm_if_trusted": "A clinician reviewing this note might rely on the documented auscultation finding (e.g., crackles or consolidation) as independent corroboration of pneumonia severity or location, potentially skewing reassessment decisions if the patient's condition changes and the expected exam finding is not reproduced."
+          }
+        ],
+        "consensus_verdict": "confirm",
+        "severity_verdict": "low",
+        "disagreement": false,
+        "confirm_votes": 3,
+        "reject_votes": 0,
+        "harm_if_trusted": "A subsequent clinician trusting this note might assume a full physical examination including auscultation was performed and documented, potentially foregoing their own careful lung exam or attributing a clinical change to established pneumonia findings rather than recognizing a new or evolving process (e.g., pleural effusion, new consolidation, or pneumothorax)."
+      },
+      {
+        "finding": {
+          "claim": "Creatinine 2.66 mg/dL",
+          "status": "contradicted",
+          "transcript_evidence": "DR stated 'creatinine is elevated at two point seven' (transcript). FHIR records a Creatinine observation for this encounter. The note states 2.66 mg/dL; the transcript states 2.7 mg/dL. These could reflect rounding, but the note's precision (2.66) does not match the spoken value (2.7). If 2.66 is the actual lab value, the transcript was rounding and the note is correct — however the note also mentions 'creatinine 2.7' in the Assessment, creating an internal discrepancy. See Assessment section: 'Creatinine 2.66 mg/dL' in Assessment vs. note body. Minor discrepancy between transcript-stated 2.7 and note-stated 2.66.",
+          "evidence_source": "transcript",
+          "severity": "medium",
+          "severity_raw": "low",
+          "weight_reason": "contradicts what was actually said in the encounter"
+        },
+        "votes": [
+          {
+            "judge": "patient_safety",
+            "verdict": "reject",
+            "severity": "low",
+            "rationale": "The note consistently reports creatinine as 2.66 mg/dL in both the Objective section and the Assessment — there is no internal discrepancy within the note itself (the auditor's claim of an \"Assessment vs. note body\" conflict is incorrect upon direct review). The transcript's \"two point seven\" is plainly a verbal rounding of the lab value 2.66 mg/dL, which is the authoritative measured fact from the FHIR encounter observation. A 0.04 mg/dL difference between a spoken approximation and the actual lab result carries no clinical consequence and does not represent a documentation error.",
+            "harm_if_trusted": "</antml3:parameter>\n"
+          },
+          {
+            "judge": "documentation_integrity",
+            "verdict": "reject",
+            "severity": "low",
+            "rationale": "The note consistently states creatinine as 2.66 mg/dL in both the Objective section and the Assessment section — there is no internal discrepancy within the note itself (the auditor's claim of an internal conflict is factually incorrect). The transcript's \"two point seven\" is a clinician's verbal rounding of the precise lab value 2.66 mg/dL, a completely routine and expected practice at the bedside. The FHIR chart records a Creatinine observation for this encounter, and the note's precise figure (2.66) is more likely to reflect the actual numeric lab result than the rounded spoken approximation. There is no conflict between sources that rises above trivial rounding.",
+            "harm_if_trusted": "</antml3:parameter>\n"
+          },
+          {
+            "judge": "false_positive_skeptic",
+            "verdict": "reject",
+            "severity": "low",
+            "rationale": "The note consistently states creatinine as 2.66 mg/dL in both the Objective section and the Assessment — there is no internal inconsistency within the note itself (the auditor's claim of an internal discrepancy is factually wrong). The transcript's \"two point seven\" is plainly a verbal rounding of the lab value 2.66 mg/dL, a routine and expected practice when a clinician communicates results aloud. The FHIR chart confirms a creatinine observation exists for this encounter, and 2.66 is a precise lab value entirely consistent with being rounded to 2.7 in speech. No true discrepancy exists across any of the three sources.",
+            "harm_if_trusted": "</antml :parameter>\n"
+          }
+        ],
+        "consensus_verdict": "reject",
+        "severity_verdict": "low",
+        "disagreement": false,
+        "confirm_votes": 0,
+        "reject_votes": 3,
+        "harm_if_trusted": "</antml3:parameter>\n"
+      },
+      {
+        "finding": {
+          "claim": "Patient age stated as 81",
+          "status": "contradicted",
+          "transcript_evidence": "Birth date 1940-05-16, encounter date 2021-01-03: patient is 80 years old (has not yet reached her 81st birthday in May 2021). The DR's verbal statement 'She is eighty-one' is also incorrect per the FHIR birth_date. The note should state 80 years old.",
+          "evidence_source": "fhir",
+          "severity": "medium",
+          "severity_raw": "low",
+          "weight_reason": "contradicts the FHIR chart, which is authoritative for recorded facts"
+        },
+        "votes": [
+          {
+            "judge": "patient_safety",
+            "verdict": "confirm",
+            "severity": "low",
+            "rationale": "The FHIR chart records a birth date of 1940-05-16 and the encounter date is 2021-01-03. At that point, the patient is 80 years old — she will not turn 81 until May 2021. The note's \"81-year-old\" is arithmetically incorrect, and the DR's verbal statement in the transcript is equally wrong. Age is an objective demographic fact for which the FHIR chart is authoritative. While a one-year error is not dramatic, patient age directly influences risk stratification, dosing thresholds, and clinical decision tools, and the error propagates into every downstream document that copies this note.",
+            "harm_if_trusted": "A clinician using this note for risk stratification (e.g., severity scoring, medication dosing, prognostic tools) will apply criteria for an 81-year-old to a patient who is actually 80, potentially inflating risk scores or triggering age-based thresholds prematurely, which could lead to overly aggressive or inappropriate treatment decisions."
+          },
+          {
+            "judge": "documentation_integrity",
+            "verdict": "confirm",
+            "severity": "medium",
+            "rationale": "Independent verification: birth_date 1940-05-16, encounter date 2021-01-03. The patient had not yet reached her May 2021 birthday, making her 80 years old at the time of encounter — not 81. Both the physician's verbal statement in the transcript (\"She is eighty-one\") and the generated note (\"81-year-old woman\") carry this same factual error. The FHIR birth_date is the authoritative source for a computed objective fact like age, and the arithmetic is unambiguous.",
+            "harm_if_trusted": "A next clinician relying on the documented age of 81 could apply age-based risk-stratification tools, dosing calculators, or prognostic scores that systematically overestimate the patient's age by one year, potentially leading to unnecessarily aggressive thresholds or erroneous eligibility determinations."
+          },
+          {
+            "judge": "false_positive_skeptic",
+            "verdict": "confirm",
+            "severity": "low",
+            "rationale": "The FHIR birth date is 1940-05-16 and the encounter date is 2021-01-03. She will not turn 81 until May 2021, making her 80 years old at the time of this encounter — the auditor's arithmetic is correct. Both the clinician's verbal statement in the transcript (\"She is eighty-one\") and the generated note (\"81-year-old\") are wrong; the FHIR chart is authoritative for this objective demographic fact. However, the clinical impact is minimal since the management plan is not materially altered by a one-year age difference.",
+            "harm_if_trusted": "Age is sometimes used in risk-stratification tools and prognosis discussions; a one-year overstatement is unlikely to change management here, but inaccurate demographic data in the permanent record can propagate errors in future encounters where age-based dosing or eligibility criteria are calculated from the note rather than the chart."
+          }
+        ],
+        "consensus_verdict": "confirm",
+        "severity_verdict": "low",
+        "disagreement": false,
+        "confirm_votes": 3,
+        "reject_votes": 0,
+        "harm_if_trusted": "A clinician using this note for risk stratification (e.g., severity scoring, medication dosing, prognostic tools) will apply criteria for an 81-year-old to a patient who is actually 80, potentially inflating risk scores or triggering age-based thresholds prematurely, which could lead to overly aggressive or inappropriate treatment decisions."
+      },
+      {
+        "finding": {
+          "claim": "OMITTED: Glucose 67.23 mg/dL is below normal (hypoglycemia threshold ~70 mg/dL) in a prediabetic patient with poor oral intake — not flagged or addressed in the plan",
+          "status": "omitted",
+          "transcript_evidence": "FHIR: Glucose observation 67.23 mg/dL. The note records the value in the Objective section but the Assessment/Plan does not address the low glucose, which is clinically relevant given prediabetes, poor intake, and ongoing illness. The transcript does not mention glucose, but the lab value is recorded in the FHIR encounter.",
+          "evidence_source": "fhir",
+          "severity": "medium",
+          "severity_raw": "",
+          "weight_reason": ""
+        },
+        "votes": [
+          {
+            "judge": "patient_safety",
+            "verdict": "confirm",
+            "severity": "medium",
+            "rationale": "The FHIR chart records a glucose of 67.23 mg/dL, which falls below the standard hypoglycemia threshold of ~70 mg/dL. The note faithfully transcribes this value in the Objective section but the Assessment and Plan makes no mention of it — not under \"Renal function and metabolic abnormalities,\" not under \"Chronic cardiovascular disease,\" and not elsewhere. This is a real omission: the patient has prediabetes, two days of poor oral intake, is febrile, and is on atenolol (a beta-blocker that can mask hypoglycemic symptoms). A documented sub-70 glucose in this context warrants at minimum a monitoring and management statement in the plan.",
+            "harm_if_trusted": "A clinician inheriting this note could overlook the low glucose entirely, miss worsening hypoglycemia masked by atenolol, and fail to initiate glucose monitoring or caloric supplementation — potentially allowing symptomatic or severe hypoglycemia to develop undetected in an acutely ill, minimally-eating 81-year-old."
+          },
+          {
+            "judge": "documentation_integrity",
+            "verdict": "confirm",
+            "severity": "medium",
+            "rationale": "The FHIR encounter observation records glucose at 67.23 mg/dL, which is below the standard hypoglycemia threshold of ~70 mg/dL. The note faithfully transcribes this value in the Objective section but the Assessment and Plan — including the \"Renal function and metabolic abnormalities\" section where the glucose value is cited — contains no acknowledgment that this is a low value, no clinical interpretation, and no management step (e.g., recheck, nutrition guidance, glucose monitoring). This is a documentation omission, not a trivial one: a prediabetic 81-year-old who has had poor oral intake for two days and is acutely ill with COVID-19 pneumonia is at meaningful risk of symptomatic hypoglycemia, and the plan section should at minimum flag awareness and a monitoring or nutritional response.",
+            "harm_if_trusted": "A clinician picking up care from this note would see the glucose value but find no clinical concern or management directive, and could overlook worsening hypoglycemia in a frail elderly patient — potentially leading to delayed recognition of symptomatic hypoglycemia (altered mental status, arrhythmia) that is further obscured by the patient's existing \"fogginess\" and acute illness."
+          },
+          {
+            "judge": "false_positive_skeptic",
+            "verdict": "confirm",
+            "severity": "medium",
+            "rationale": "The FHIR chart records a glucose of 67.23 mg/dL, which is below the standard hypoglycemia threshold (~70 mg/dL). The note correctly transcribes this value in the Objective section but the Assessment and Plan is silent on it — there is no acknowledgment of hypoglycemia, no explanation (e.g., attributed to poor intake), no monitoring directive, and no guidance on whether to hold or adjust any agents. This is a clinically meaningful omission in a prediabetic 81-year-old with two days of poor oral intake, active serious illness, and a low BP (97/53 on repeat vitals), all of which can compound hypoglycemia risk. The transcript does not address glucose either, so there is no alternative source that fills the gap.",
+            "harm_if_trusted": "If the next clinician trusts the note as written, they may not recognize or monitor for ongoing hypoglycemia, risking undetected further glucose decline, altered consciousness, or cardiac arrhythmia in a high-risk elderly patient with known cardiovascular disease."
+          }
+        ],
+        "consensus_verdict": "confirm",
+        "severity_verdict": "medium",
+        "disagreement": false,
+        "confirm_votes": 3,
+        "reject_votes": 0,
+        "harm_if_trusted": "A clinician picking up care from this note would see the glucose value but find no clinical concern or management directive, and could overlook worsening hypoglycemia in a frail elderly patient — potentially leading to delayed recognition of symptomatic hypoglycemia (altered mental status, arrhythmia) that is further obscured by the patient's existing \"fogginess\" and acute illness."
+      }
+    ],
+    "ground_truth_traps": [],
+    "summary": {
+      "claims_audited": 72,
+      "flagged": 12,
+      "by_status": {
+        "supported": 60,
+        "contradicted": 3,
+        "unsupported": 6,
+        "omitted": 3
+      },
+      "escalated_to_judges": 6,
+      "confirmed_discrepancies": 5,
+      "high_severity_confirmed": 1,
+      "judge_disagreements": 0,
+      "severity_escalated": 3
+    },
+    "evaluation": {}
+  }
+}
