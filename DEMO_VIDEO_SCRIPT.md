@@ -1,4 +1,4 @@
-# 60-second demo video script — Driftwatch
+# 60-second demo video script — Veritas Charting
 
 **Goal:** show the *agentic pipeline* we built today catching a real, dangerous
 error in a real Abridge clinician note — with judges that verify against the
@@ -15,7 +15,7 @@ picked out. Keep the cursor deliberate. Target 55–60s.
 > "AI scribes like Abridge now write the clinical note for millions of visits.
 > The dangerous failure isn't a garbled note — it's a *fluent* one that invents a
 > finding that was never there. Those errors are invisible, and the next clinician
-> trusts them. **We built Driftwatch — an adversarial harness that catches them.**"
+> trusts them. **We built Veritas Charting — an adversarial harness that catches them.**"
 
 ### [0:12–0:22] What it does (start the run, or cut to loaded results)
 

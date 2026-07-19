@@ -1,4 +1,4 @@
-# Clinical Note Drift Harness
+# Veritas Charting
 
 An adversarial red-team harness that catches when an AI-generated clinical note
 **silently drifts** from what was actually said in a doctor-patient transcript.
@@ -37,7 +37,14 @@ product underneath — the entire agentic pipeline is original work for this eve
   corpus. (`dataset.py`, `auditor.py`)
 - **A claim-type evidence-authority model** — authority shifts with the claim
   (FHIR for measured facts, clinician for judgment, patient for their own body /
-  adherence), shared by auditor and judges. (`auditor.py:EVIDENCE_AUTHORITY`)
+  adherence), shared verbatim by the auditor **and** all three judges.
+  (`auditor.py:EVIDENCE_AUTHORITY`)
+- **Deterministic evidence-source weighting** — the authority model applied as
+  code, not just prose: a contradiction against an authoritative source (the FHIR
+  chart, or the spoken record for the patient's own body / adherence) is escalated
+  one severity level before ranking. The bump is auditable, never silent — each
+  finding keeps its original severity (`severity_raw`) and the reason
+  (`weight_reason`). (`auditor.py:apply_evidence_weighting`)
 - **An adversarial 3-judge ensemble** — patient-safety, documentation-integrity,
   and false-positive-skeptic lenses vote independently; **disagreement is
   surfaced as a split, never averaged away**; each emits a *clinical-harm-if-
@@ -45,7 +52,10 @@ product underneath — the entire agentic pipeline is original work for this eve
 - **Honest self-scoring** — grades the harness against planted traps on **drift
   recall**, counting only traps the scribe actually drifted on. (`scorer.py`)
 - **A live 3-panel web app** — FastAPI + vanilla JS to run any encounter and
-  trace each finding to its source with per-judge votes. (`main.py`, `static/`)
+  trace each finding to its source with per-judge votes. Self-contained (no build
+  step, no external assets): a medical-blue theme with a light/dark toggle
+  (persisted, no flash), and animated skeleton placeholders while a run streams
+  in. (`main.py`, `static/`)
 
 Strict-JSON Claude tool use is used at every reasoning step (auditor, each judge,
 scorer) so the pipeline never parses free-text. No fine-tuning — reliability
@@ -66,12 +76,12 @@ transcript ──▶ note_generator ──▶ auditor ──▶ judge_ensemble �
 |--------|------|------|
 | 1 | `drift_harness/transcript_generator.py` | Synthetic transcripts with deliberately planted traps + ground-truth trap list |
 | 2 | `drift_harness/note_generator.py` | SOAP note from a transcript — the **system under test** |
-| 3 | `drift_harness/auditor.py` | Traces every note claim to the transcript; flags unsupported / contradicted / omitted (strict-JSON tool use) |
+| 3 | `drift_harness/auditor.py` | Traces every note claim to the transcript + FHIR chart; flags unsupported / contradicted / omitted (strict-JSON tool use); deterministic evidence-source severity weighting |
 | 4 | `drift_harness/judge_ensemble.py` | 3 independently-framed Claude judges score each flag against all three sources; **disagreement is surfaced, never averaged**; each emits a *clinical-harm-if-trusted* statement |
 | 5 | `drift_harness/orchestrator.py` | Plain-Python loop over N cases → aggregated JSON report |
 | 5b | `drift_harness/scorer.py` | **Self-scoring**: grades the harness against planted traps and reports drift recall (see below) |
 | — | `drift_harness/dataset.py` | Loads the Abridge `synthetic-ambient-fhir-25` encounters + builds the FHIR chart / AVS ground-truth context |
-| 6 | `main.py` + `static/index.html` | FastAPI + vanilla-JS 3-panel UI (transcript · note · flagged discrepancies) |
+| 6 | `main.py` + `static/index.html` | FastAPI + vanilla-JS 3-panel UI (transcript · note · flagged discrepancies); medical-blue theme, light/dark toggle, skeleton loading |
 
 Model: `claude-sonnet-4-6` (single model for note, audit, and judges — apples-to-apples). Configured in `drift_harness/llm.py`.
 
@@ -143,6 +153,11 @@ This shows up live in the UI (the **drift recall** tile and the annotated
 - **Judges verify, they don't rubber-stamp.** Each judge sees the transcript and
   the FHIR chart and re-checks the flag itself — so a chart-based catch is
   confirmed against the chart, not the auditor's paraphrase of it.
+- **Authority is enforced in code, not just asked for.** Beyond the shared
+  `EVIDENCE_AUTHORITY` prompt, `apply_evidence_weighting` deterministically bumps
+  a contradiction against an authoritative source up one severity level, so the
+  riskiest drifts rank first for the judges. It records `severity_raw` and a
+  `weight_reason`, so every escalation is explainable.
 - **Consequences, not just labels.** Each confirmed drift carries a
   *clinical-harm-if-trusted* sentence — what could go wrong if the next clinician
   believes the note.

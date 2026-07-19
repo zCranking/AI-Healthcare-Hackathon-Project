@@ -24,7 +24,7 @@ from drift_harness.transcript_generator import generate_cases
 
 _STATIC = Path(__file__).resolve().parent / "static"
 
-app = FastAPI(title="Clinical Note Drift Harness")
+app = FastAPI(title="Veritas Charting")
 app.mount("/static", StaticFiles(directory=_STATIC), name="static")
 
 # Newest-first in-memory history so the GET endpoint has something to serve.

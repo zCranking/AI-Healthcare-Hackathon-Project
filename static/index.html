@@ -9,7 +9,7 @@
   /* apply saved / preferred theme before first paint to avoid a flash */
   (function () {
     try {
-      var t = localStorage.getItem("driftwatch-theme");
+      var t = localStorage.getItem("veritas-theme");
       if (t !== "light" && t !== "dark") {
         t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
       }
@@ -428,7 +428,7 @@ function toggleTheme() {
   const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
   const next = cur === "dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", next);
-  try { localStorage.setItem("driftwatch-theme", next); } catch (e) {}
+  try { localStorage.setItem("veritas-theme", next); } catch (e) {}
 }
 function themeToggle() {
   const b = el("button", {

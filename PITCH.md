@@ -1,4 +1,4 @@
-# Driftwatch — the safety net for AI clinical scribes
+# Veritas Charting — the safety net for AI clinical scribes
 
 ## The problem (30 seconds)
 
@@ -17,7 +17,7 @@ grammar.**
 
 ## What we built
 
-**Driftwatch is an adversarial red-team harness that treats the scribe as a
+**Veritas Charting is an adversarial red-team harness that treats the scribe as a
 system under test.** For every claim in a generated note it asks: *is this
 actually true?* — checking three sources in a strict authority order:
 
