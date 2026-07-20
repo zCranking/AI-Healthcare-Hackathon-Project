@@ -1398,13 +1398,20 @@ function renderTrapsTab(traps, evalu) {
   return box;
 }
 
-// scroll the evidence pane so the highlighted anchor is visible
+// Scroll the evidence pane so the highlighted anchor lands near the top of the
+// visible area. Measured with getBoundingClientRect (relative to the scroll
+// container) rather than offsetTop: the note highlight is a <mark> buried inside
+// the prose div, whose offsetParent is not this container, so offsetTop
+// overshot and dropped the highlight just above the viewport.
 function afterScroll() {
   requestAnimationFrame(() => {
     const cont = $("dw-ev-scroll");
     if (!cont) return;
     const anchor = cont.querySelector('[data-anchor="true"]') || cont.querySelector("mark.dw");
-    if (anchor) cont.scrollTop = Math.max(0, anchor.offsetTop - 90);
+    if (!anchor) return;
+    const HEADROOM = 24; // small gap above the highlight so it reads as "right here"
+    const delta = anchor.getBoundingClientRect().top - cont.getBoundingClientRect().top - HEADROOM;
+    cont.scrollTop += delta; // browser clamps to valid range
   });
 }
 
