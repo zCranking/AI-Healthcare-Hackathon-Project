@@ -219,3 +219,7 @@ __marimo__/
 
 # Drift harness run reports
 results/
+
+# local test artifacts
+static/_audit.html
+static/_*.html
