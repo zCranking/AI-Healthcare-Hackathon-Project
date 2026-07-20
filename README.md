@@ -25,7 +25,7 @@ silently drifts from what was actually said in a doctor-patient visit.**
 > and hunts for exactly those drifts.
 
 **[▶ Try the live demo](https://zcranking.github.io/AI-Healthcare-Hackathon-Project/)** — a real
-saved pipeline run, no API key required.
+saved pipeline run (only case 1), no API key required.
 
 ## How it works
 
